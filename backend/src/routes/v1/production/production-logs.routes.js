@@ -59,6 +59,9 @@ router.post('/', async (req, res) => {
           outputUnit,
           scrapQuantity: scrapQuantity || 0.0,
           notes,
+          userId: req.productionActor.id,
+          userName: req.productionActor.name,
+          workstationName: String(req.get('x-workstation-name') || '').trim().slice(0, 255) || null,
         });
 
       // 2. If the clerk reported machine downtime during this session, record it directly against the work center

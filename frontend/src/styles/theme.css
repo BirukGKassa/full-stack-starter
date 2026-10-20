@@ -79,4 +79,64 @@ html[data-theme="dark"] .prod-managed-user-heading small, html[data-theme="dark"
 html[data-theme="dark"] .prod-security-note, html[data-theme="dark"] .prod-audit-meta strong, html[data-theme="dark"] .prod-audit-empty { color: #b7c6b9; }
 html[data-theme="dark"] .prod-security-note code { background: #26352b; }
 html[data-theme="dark"] .prod-admin-settings .prod-field, html[data-theme="dark"] .prod-admin-settings .prod-field span { color: #bdc9bf; }
+html[data-theme="dark"] .lyu-hero { background: #111a16; }
+html[data-theme="dark"] .lyu-hero-copy h1, html[data-theme="dark"] .lyu-section-heading h2, html[data-theme="dark"] .lyu-factory-section h2 { color: #e4ede5; }
+html[data-theme="dark"] .lyu-hero-description, html[data-theme="dark"] .lyu-section-heading > p:last-child, html[data-theme="dark"] .lyu-factory-section > div:first-child > p:last-child { color: #b1beb4; }
+html[data-theme="dark"] .lyu-hero-proof p, html[data-theme="dark"] .lyu-hero-proof strong { color: #b7c8b8; }
+html[data-theme="dark"] .lyu-hero-orbit { border-color: #34483a; }
+html[data-theme="dark"] .lyu-hero-orbit-two { border-color: #293a2f; }
+html[data-theme="dark"] .lyu-hero-status, html[data-theme="dark"] .lyu-preview, html[data-theme="dark"] .lyu-hero-note { border-color: #344438; background: #19251e; color: #bdcbbf; }
+html[data-theme="dark"] .lyu-preview-heading h2, html[data-theme="dark"] .lyu-preview-mark { color: #dce9dc; }
+html[data-theme="dark"] .lyu-preview-top, html[data-theme="dark"] .lyu-preview-heading small, html[data-theme="dark"] .lyu-preview-metrics small, html[data-theme="dark"] .lyu-preview-chart-title, html[data-theme="dark"] .lyu-preview-bottom, html[data-theme="dark"] .lyu-preview-metrics i, html[data-theme="dark"] .lyu-hero-note small { color: #a7b6aa; }
+html[data-theme="dark"] .lyu-preview-metrics > div { border-color: #2c3c31; background: #202d25; }
+html[data-theme="dark"] .lyu-preview-metrics strong, html[data-theme="dark"] .lyu-hero-note strong { color: #d2e3d1; }
+html[data-theme="dark"] .lyu-preview-bars { border-color: #39483c; background: repeating-linear-gradient(to bottom, transparent 0, transparent 27px, #2a382e 28px); }
+html[data-theme="dark"] .lyu-factory-strip { border-color: #2d3d32; background: #17221b; }
+html[data-theme="dark"] .lyu-factory-strip > span, html[data-theme="dark"] .lyu-factory-strip small, html[data-theme="dark"] .lyu-feature-number, html[data-theme="dark"] .lyu-factory-list article small { color: #a3b2a6; }
+html[data-theme="dark"] .lyu-factory-strip strong, html[data-theme="dark"] .lyu-factory-list article strong { color: #d1dfd2; }
+html[data-theme="dark"] .lyu-feature-card { border-color: #2e3d32; background: #18241c; }
+html[data-theme="dark"] .lyu-feature-card h3 { color: #dce8dc; }
+html[data-theme="dark"] .lyu-feature-card p { color: #b0beb2; }
+html[data-theme="dark"] .lyu-factory-section { background: #19251e; }
+html[data-theme="dark"] .lyu-factory-list article { border-color: #35443a; }
+html[data-theme="dark"] .lyu-factory-list article > span, html[data-theme="dark"] .lyu-factory-list article b { color: #b3d19f; }
+html[data-theme="dark"] .lyu-cta { background: #142d20; }
+html[data-theme="dark"] .erp-dashboard { color: #dce7de; }
+html[data-theme="dark"] .erp-dashboard-top { border-color: #334237; }
+html[data-theme="dark"] .erp-dashboard-top > div:first-child > p:last-child, html[data-theme="dark"] .erp-user-chip { color: #b0beb2; }
+html[data-theme="dark"] .erp-dashboard-welcome h1 { color: #dce9dd; }
+html[data-theme="dark"] .erp-dashboard-welcome p, html[data-theme="dark"] .erp-dashboard-cards p { color: #adbaaf; }
+html[data-theme="dark"] .erp-dashboard-cards article, html[data-theme="dark"] .erp-modules { border-color: #2e3d32; background: #18241c; }
+html[data-theme="dark"] .erp-dashboard-cards article > span, html[data-theme="dark"] .erp-modules-heading > div > p:last-child, html[data-theme="dark"] .erp-module-card small { color: #a7b5a9; }
+html[data-theme="dark"] .erp-dashboard-cards h2, html[data-theme="dark"] .erp-modules-heading h2, html[data-theme="dark"] .erp-module-card strong { color: #d9e6da; }
+html[data-theme="dark"] .erp-dashboard-cards a, html[data-theme="dark"] .erp-module-card > b { color: #b9d79f; }
+html[data-theme="dark"] .erp-module-card { border-color: #35443a; color: #ccd9ce; }
+html[data-theme="dark"] .erp-module-card:hover { border-color: #52694f; background: #202e25; }
+html[data-theme="dark"] .erp-module-card > span { background: #2a3c2e; }
+html[data-theme="dark"] .erp-signout { color: #c3d0c5; }
+html[data-theme="dark"] .auth-aside-copy > p:last-child, html[data-theme="dark"] .auth-aside-footer { color: #c2d3c5; }
+html[data-theme="dark"] .auth-form input::placeholder { color: #99a99c; }
+html[data-theme="dark"] .auth-tabs button { color: #c2d0c4; }
+html[data-theme="dark"] .auth-terms { color: #9faea2; }
+html[data-theme="dark"] .prod-field > span { color: #d0dcd1; }
+html[data-theme="dark"] .prod-field small, html[data-theme="dark"] .prod-form-actions > span { color: #a6b5a9; }
+html[data-theme="dark"] .prod-managed-user-heading small { color: #b0beb3; }
+html[data-theme="dark"] .prod-no-access h1 { color: #e0ebe1; }
+html[data-theme="dark"] .prod-no-access p { color: #b2c0b5; }
+html[data-theme="dark"] .prod-no-access a { color: #b8d69e; }
+
+.prod-field > span { color: #536357; font-size: 11px; }
+.prod-field input, .prod-field select, .prod-field textarea { font-size: 12px; }
+.prod-field small { color: #68776c; font-size: 10px; line-height: 1.5; }
+.prod-card-heading h2 { font-size: 15px; }
+.prod-card-heading p { color: #68776c; font-size: 11px; }
+.prod-table th { font-size: 9px; }
+.prod-table td { font-size: 11px; }
+.prod-eyebrow { font-size: 10px; }
+.prod-pill { font-size: 9px; }
+.erp-dashboard-top > div:first-child > p:last-child, .erp-user-chip, .erp-signout { font-size: 11px; }
+.erp-dashboard-cards article > span, .erp-dashboard-cards p, .erp-module-card small { font-size: 10px; }
+.erp-dashboard-cards a, .erp-module-card strong { font-size: 11px; }
+.lyu-preview-top, .lyu-preview-heading small, .lyu-preview-metrics small, .lyu-preview-chart-title, .lyu-preview-bottom, .lyu-feature-number, .lyu-factory-strip > span, .lyu-factory-strip small, .lyu-factory-list article small, .lyu-hero-status, .lyu-hero-note small { font-size: 9px; }
+.lyu-feature-card p, .lyu-hero-proof p, .lyu-factory-list article strong { font-size: 11px; }
 @media (prefers-reduced-motion: reduce) { .prod-loader { animation-duration: 2s; } }

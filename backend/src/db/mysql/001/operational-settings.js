@@ -1,10 +1,11 @@
 import { mysqlTable, varchar, timestamp, json, uniqueIndex, index } from 'drizzle-orm/mysql-core';
+import { user } from '../auth.js';
 
 export const moduleAssignments = mysqlTable('module_assignments', {
   id: varchar('id', { length: 36 }).primaryKey().notNull(),
-  userId: varchar('user_id', { length: 255 }).notNull(),
+  userId: varchar('user_id', { length: 255 }).notNull().references(() => user.id, { onDelete: 'cascade' }),
   moduleKey: varchar('module_key', { length: 50 }).notNull(),
-  assignedBy: varchar('assigned_by', { length: 255 }).notNull(),
+  assignedBy: varchar('assigned_by', { length: 255 }).notNull().references(() => user.id, { onDelete: 'restrict' }),
   createdAt: timestamp('created_at').defaultNow().notNull(),
 }, (table) => [
   uniqueIndex('module_assignments_user_module_idx').on(table.userId, table.moduleKey),

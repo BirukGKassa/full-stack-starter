@@ -3,6 +3,7 @@ import RootLayout from './app/layout.js';
 import HomePage from './app/page.js';
 import GoPage from './app/go/page.js';
 import DashboardPage from './app/dashboard/page.js';
+import SettingsPage from './app/dashboard/settings/page.js';
 import ProductionPage from './app/production/page.js';
 import { ThemeProvider } from './lib/theme.js';
 
@@ -14,6 +15,7 @@ const router = createBrowserRouter([
       { index: true, element: <HomePage /> },
       { path: 'go', element: <GoPage /> },
       { path: 'dashboard', element: <DashboardPage /> },
+      { path: 'dashboard/settings', element: <SettingsPage /> },
       { path: 'production', element: <ProductionPage /> },
     ],
   },

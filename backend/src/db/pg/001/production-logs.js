@@ -1,6 +1,7 @@
-import { pgTable, uuid, text, real, integer, timestamp } from "drizzle-orm/pg-core";
+import { pgTable, uuid, text, real, integer, timestamp, varchar, index } from "drizzle-orm/pg-core";
 import { manufacturingOrders } from "./manufacturing-orders.js";
 import { workCenters } from "./work-centers.js";
+import { user } from "../auth.js";
 
 /**
  * MODEL: machine_production_logs
@@ -20,5 +21,8 @@ export const machineProductionLogs = pgTable("machine_production_logs", {
   outputUnit: text("output_unit").notNull(), // Unit of measure, e.g., "meters", "pieces"
   scrapQuantity: real("scrap_quantity").default(0.0).notNull(), // Defective units generated, e.g., 4.5
   notes: text("notes"), // Remarks, e.g., "Minor cooling line stutter during mid-shift run"
+  userId: varchar("user_id", { length: 255 }).references(() => user.id, { onDelete: "set null" }),
+  userName: varchar("user_name", { length: 255 }),
+  workstationName: varchar("workstation_name", { length: 255 }),
   createdAt: timestamp("created_at").defaultNow().notNull(), // Record creation timestamp
-});
+}, (table) => [index("machine_production_logs_user_idx").on(table.userId)]);

@@ -1,4 +1,5 @@
-import { mysqlTable, varchar, float, int, timestamp, datetime } from "drizzle-orm/mysql-core";
+import { mysqlTable, varchar, float, int, timestamp, datetime, index } from "drizzle-orm/mysql-core";
+import { user } from "../auth.js";
 
 /**
  * MODEL: machine_production_logs
@@ -18,5 +19,8 @@ export const machineProductionLogs = mysqlTable("machine_production_logs", {
   outputUnit: varchar("output_unit", { length: 50 }).notNull(), // Unit of measure, e.g., "meters"
   scrapQuantity: float("scrap_quantity").default(0.0).notNull(), // Defective units generated, e.g., 4.5
   notes: varchar("notes", { length: 500 }), // Remarks
+  userId: varchar("user_id", { length: 255 }).references(() => user.id, { onDelete: "set null" }),
+  userName: varchar("user_name", { length: 255 }),
+  workstationName: varchar("workstation_name", { length: 255 }),
   createdAt: timestamp("created_at").defaultNow().notNull(), // Record creation timestamp
-});
+}, (table) => [index("machine_production_logs_user_idx").on(table.userId)]);

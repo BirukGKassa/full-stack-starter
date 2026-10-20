@@ -1,5 +1,6 @@
 import './config.js';
 import { betterAuth } from 'better-auth';
+import { username } from 'better-auth/plugins';
 import { drizzleAdapter } from '@better-auth/drizzle-adapter';
 import { db, dbType } from './db/index.js';
 
@@ -23,4 +24,5 @@ export const auth = betterAuth({
     enabled: true,
   },
   socialProviders: github,
+  plugins: [username()],
 });

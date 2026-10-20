@@ -1,10 +1,11 @@
 import { pgTable, varchar, timestamp, jsonb, uniqueIndex, index } from 'drizzle-orm/pg-core';
+import { user } from '../auth.js';
 
 export const moduleAssignments = pgTable('module_assignments', {
   id: varchar('id', { length: 36 }).primaryKey(),
-  userId: varchar('user_id', { length: 255 }).notNull(),
+  userId: varchar('user_id', { length: 255 }).notNull().references(() => user.id, { onDelete: 'cascade' }),
   moduleKey: varchar('module_key', { length: 50 }).notNull(),
-  assignedBy: varchar('assigned_by', { length: 255 }).notNull(),
+  assignedBy: varchar('assigned_by', { length: 255 }).notNull().references(() => user.id, { onDelete: 'restrict' }),
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
 }, (table) => [
   uniqueIndex('module_assignments_user_module_idx').on(table.userId, table.moduleKey),

@@ -3,6 +3,8 @@ import { boolean, index, mysqlTable, text, timestamp, datetime, varchar } from '
 export const user = mysqlTable('user', {
   id: varchar('id', { length: 255 }).primaryKey(),
   name: varchar('name', { length: 255 }).notNull(),
+  username: varchar('username', { length: 30 }).unique(),
+  displayUsername: varchar('displayUsername', { length: 30 }),
   email: varchar('email', { length: 255 }).notNull().unique(),
   emailVerified: boolean('emailVerified').default(false).notNull(),
   image: text('image'),

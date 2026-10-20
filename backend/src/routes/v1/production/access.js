@@ -95,6 +95,7 @@ export async function productionAccess(req, res, next) {
       id: session.user.id,
       name: session.user.name,
       email: session.user.email,
+      username: session.user.username || null,
       isAdmin,
       modules: isAdmin ? Object.values(routeModules).filter((module, index, all) => all.indexOf(module) === index) : assignedModules,
     };

@@ -3,7 +3,6 @@ import { Link, Navigate } from 'react-router-dom';
 import { authClient } from '../../lib/auth-client.js';
 import { loadProductionData, productionApi } from '../../lib/production-api.js';
 import { useTheme } from '../../lib/theme.js';
-import AdminSettings from './components/admin-settings.js';
 import { AuditContext, DataTable, EntryCard, Input, MetricCard, Select, Textarea } from './components/ui.js';
 import DowntimeView from './views/downtime.js';
 import ProductionEntryView from './views/production-entry.js';
@@ -131,7 +130,7 @@ export default function ProductionPage() {
   useEffect(() => { refresh(false); }, [refresh]);
   useEffect(() => {
     if (!access?.modules?.length) return;
-    if (!access.modules.includes(activeView) && !(access.user?.isAdmin && activeView === 'settings')) setActiveView(access.modules[0]);
+    if (!access.modules.includes(activeView)) setActiveView(access.modules[0]);
   }, [access, activeView]);
 
   useEffect(() => {
@@ -594,7 +593,7 @@ export default function ProductionPage() {
 
   const viewContent = {
     overview: renderOverview,
-    production: () => <ProductionEntryView code={code} orderOptions={orderOptions} machineOptions={machineOptions} reasonOptions={reasonOptions} scoped={scoped} recentLogs={recentLogs} saving={saving} submit={submit} refresh={refresh} formatNumber={formatNumber} />,
+    production: () => <ProductionEntryView code={code} orderOptions={orderOptions} machineOptions={machineOptions} reasonOptions={reasonOptions} scoped={scoped} recentLogs={recentLogs} saving={saving} submit={submit} refresh={refresh} formatNumber={formatNumber} actor={access?.user} workstation={workstation} onWorkstationChange={updateWorkstation} />,
     downtime: () => <DowntimeView code={code} machineOptions={machineOptions} reasonOptions={reasonOptions} scoped={scoped} saving={saving} submit={submit} runAction={runAction} downtimeCount={downtimeCount} setDowntimeCount={setDowntimeCount} formatDate={formatDate} formatNumber={formatNumber} />,
     products: renderProducts,
     orders: renderOrders,
@@ -609,9 +608,8 @@ export default function ProductionPage() {
       <aside className="prod-sidebar">
         <Link to="/" className="brand prod-brand"><span className="brand-mark"><span /></span><span>LYU<span className="brand-dot"> ERP</span></span></Link>
         <div className="prod-factory-select"><span>ACTIVE FACTORY</span><select aria-label="Select factory" value={selectedCompany} onChange={(event) => { setSelectedCompany(event.target.value); setOperatorReport(null); }}><option value="">All factories</option>{companies.map((company) => <option value={company.code} key={company.code}>{company.code} · {company.name}</option>)}</select></div>
-        {['WORKSPACE', 'DATA ENTRY', 'OPERATIONS', 'INSIGHTS', 'ADMIN'].map((group) => <div className="prod-nav-group" key={group}>
+        {['WORKSPACE', 'DATA ENTRY', 'OPERATIONS', 'INSIGHTS'].map((group) => <div className="prod-nav-group" key={group}>
           <p>{group}</p>{navigation.filter((item) => item.group === group && (isAdmin || access?.modules?.includes(item.id))).map((item) => <button key={item.id} onClick={() => setActiveView(item.id)} className={`prod-nav-link ${activeView === item.id ? 'prod-nav-link-active' : ''}`}><span>{item.icon}</span>{item.label}{item.id === 'downtime' && activeDowntime.length > 0 && <i>{activeDowntime.length}</i>}</button>)}
-          {group === 'ADMIN' && isAdmin && <button className={`prod-nav-link ${activeView === 'settings' ? 'prod-nav-link-active' : ''}`} onClick={() => setActiveView('settings')}><span>⚙</span>System settings</button>}
         </div>)}
         <div className="prod-sidebar-bottom"><div className="prod-user"><span>{session.user.name?.[0]?.toUpperCase() || 'U'}</span><div><strong>{session.user.name}</strong><small>Production workspace</small></div></div><Link to="/dashboard" className="prod-back-link">← Personal dashboard</Link></div>
       </aside>
@@ -620,7 +618,7 @@ export default function ProductionPage() {
         {loading ? <div className="prod-loading"><span className="prod-loader" />Loading factory data…</div> : <div className="prod-view">
           <div className="prod-view-heading"><div><span className="prod-factory-chip">{code || 'ALL'} FACTORY</span><span className="prod-today-date">{new Date().toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })}</span></div><button className="prod-button prod-button-outline" onClick={() => refresh()} disabled={refreshing}>{refreshing ? 'Refreshing…' : '↻ Refresh data'}</button></div>
             {apiErrors.length > 0 && <section className="prod-card prod-api-warning prod-global-warning"><strong>Some production services could not be reached.</strong><p>{apiErrors.map(([key, value]) => `${resourceErrors[key]}: ${value.error}`).join(' · ')}</p><button className="prod-text-button" onClick={() => refresh()}>Retry failed data ↻</button></section>}
-          {activeView === 'settings' && isAdmin ? <AdminSettings onNotify={setToast} /> : viewContent}
+          {viewContent}
           <footer className="prod-footer"><span>PRODUCTION OPERATIONS</span><span>{code || 'MULTI-FACTORY'} · {new Date().getFullYear()}</span></footer>
         </div>}
       </main>

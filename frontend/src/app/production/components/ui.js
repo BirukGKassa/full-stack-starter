@@ -2,11 +2,11 @@ import { createContext, useContext } from 'react';
 
 export const AuditContext = createContext([]);
 
-export function Input({ label, name, type = 'text', required = true, defaultValue, min, minLength, maxLength, step, placeholder, help }) {
+export function Input({ label, name, type = 'text', required = true, defaultValue, value, onChange, readOnly = false, min, minLength, maxLength, step, placeholder, help }) {
   return (
     <label className="prod-field">
       <span>{label}{required && <b aria-hidden="true"> *</b>}</span>
-      <input name={name} type={type} required={required} defaultValue={defaultValue} min={min} minLength={minLength} maxLength={maxLength} step={step} placeholder={placeholder} />
+      <input name={name} type={type} required={required} {...(value === undefined ? { defaultValue } : { value })} onChange={onChange} readOnly={readOnly} min={min} minLength={minLength} maxLength={maxLength} step={step} placeholder={placeholder} />
       {help && <small>{help}</small>}
     </label>
   );

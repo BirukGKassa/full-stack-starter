@@ -10,7 +10,7 @@ function toIso(value) {
   return value ? new Date(value).toISOString() : null;
 }
 
-export default function ProductionEntryView({ code, orderOptions, machineOptions, reasonOptions, scoped, recentLogs, saving, submit, refresh, formatNumber }) {
+export default function ProductionEntryView({ code, orderOptions, machineOptions, reasonOptions, scoped, recentLogs, saving, submit, refresh, formatNumber, actor, workstation, onWorkstationChange }) {
   return (
     <>
       <div className="prod-page-heading"><p className="prod-eyebrow">DATA ENTRY · SHOP FLOOR</p><h1>Record a production shift</h1><p>One quick entry captures output, scrap, material trace, and any stoppage for the shift.</p></div>
@@ -55,6 +55,11 @@ export default function ProductionEntryView({ code, orderOptions, machineOptions
         <Input label="Output unit" name="outputUnit" placeholder="piece, kg, meter…" />
         <Input label="Scrap quantity" name="scrapQuantity" type="number" min="0" step="0.01" required={false} defaultValue="0" />
         <Textarea label="Shift notes" name="notes" placeholder="Production notes, handover details, or unusual events" />
+        <div className="prod-form-divider"><span>RECORD ATTRIBUTION · AUTOMATIC</span></div>
+        <Input label="Recorded by" name="actorName" defaultValue={actor?.name || ''} readOnly required={false} />
+        <Input label="Username" name="actorUsername" defaultValue={actor?.username || ''} readOnly required={false} />
+        <Input label="User ID" name="actorUserId" defaultValue={actor?.id || ''} readOnly required={false} help="Captured from your signed-in account; it cannot be changed here." />
+        <Input label="Workstation name" name="workstationName" value={workstation} onChange={(event) => onWorkstationChange(event.target.value)} placeholder="Name this workstation" help="A label saved in this browser, not an automatically detected PC name." required={false} />
         <div className="prod-form-divider"><span>OPTIONAL · CAPTURE STOPPAGE WITH THIS SHIFT</span></div>
         <Select label="Downtime reason" name="downtimeReasonId" options={reasonOptions} placeholder="No downtime to record" required={false} />
         <Input label="Downtime minutes" name="downtimeMinutes" type="number" min="0" required={false} defaultValue="0" />
@@ -69,7 +74,9 @@ export default function ProductionEntryView({ code, orderOptions, machineOptions
       <section className="prod-card prod-table-card"><div className="prod-card-heading"><div><h2>Recent entries · {code}</h2><p>Saved production reports are listed here immediately.</p></div><button className="prod-text-button" onClick={() => refresh()}>Refresh ↻</button></div><DataTable columns={[
         { key: 'startTime', label: 'Start', render: (row) => new Date(row.startTime).toLocaleString() },
         { key: 'workCenterCode', label: 'Machine' }, { key: 'manufacturingOrderId', label: 'Work order', render: (row) => scoped.orders.find((order) => order.id === row.manufacturingOrderId)?.orderNumber || row.manufacturingOrderId },
-        { key: 'operatorId', label: 'Operator' }, { key: 'outputQuantity', label: 'Good output', render: (row) => `${formatNumber(row.outputQuantity)} ${row.outputUnit || ''}` }, { key: 'scrapQuantity', label: 'Scrap', render: (row) => formatNumber(row.scrapQuantity) },
+        { key: 'operatorId', label: 'Operator' }, { key: 'userName', label: 'Recorded by', render: (row) => row.userName || '—' },
+        { key: 'workstationName', label: 'Workstation', render: (row) => row.workstationName || '—' },
+        { key: 'outputQuantity', label: 'Good output', render: (row) => `${formatNumber(row.outputQuantity)} ${row.outputUnit || ''}` }, { key: 'scrapQuantity', label: 'Scrap', render: (row) => formatNumber(row.scrapQuantity) },
       ]} rows={recentLogs} empty="No production shift logs for this factory yet." /></section>
     </>
   );
