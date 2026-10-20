@@ -40,12 +40,12 @@ export default function GoPage() {
 
   return (
     <section className="auth-shell">
-      <div className="auth-aside"><Link to="/" className="brand brand-light"><span className="brand-mark"><span /></span><span>northstar<span className="brand-dot">.</span></span></Link><div className="auth-aside-copy"><span className="auth-sun">✳</span><p className="eyebrow eyebrow-light">A LITTLE SPACE TO THINK</p><h1>Your next<br />good thing<br /><em>starts here.</em></h1><p>Bring your best ideas to a place where they can grow.</p></div><span className="auth-aside-footer">A CALMER WAY TO GET THERE <span>↗</span></span></div>
+      <div className="auth-aside"><Link to="/" className="brand brand-light"><span className="brand-mark"><span /></span><span>LYU<span className="brand-dot"> ERP</span></span></Link><div className="auth-aside-copy"><span className="auth-sun">✳</span><p className="eyebrow eyebrow-light">PRODUCTION, QUALITY, AND PEOPLE</p><h1>Every shift<br />starts with<br /><em>clarity.</em></h1><p>Sign in to your Lyu ERP factory workspace.</p></div><span className="auth-aside-footer">LYU ERP OPERATIONS <span>↗</span></span></div>
       <div className="auth-main"><div className="auth-form-wrap">
-        <div className="auth-mobile-brand"><Link to="/" className="brand"><span className="brand-mark"><span /></span><span>northstar<span className="brand-dot">.</span></span></Link></div>
-        <p className="eyebrow"><span className="eyebrow-line" /> YOUR SPACE IS WAITING</p>
-        <h2>{isSignup ? 'Start with a little' : 'Welcome back to'}<br /><span>{isSignup ? 'possibility.' : 'your good work.'}</span></h2>
-        <p className="auth-intro">{isSignup ? 'Create an account and make room for what matters.' : 'Pick up right where you left off.'}</p>
+        <div className="auth-mobile-brand"><Link to="/" className="brand"><span className="brand-mark"><span /></span><span>LYU<span className="brand-dot"> ERP</span></span></Link></div>
+        <p className="eyebrow"><span className="eyebrow-line" /> LYU ERP OPERATIONS</p>
+        <h2>{isSignup ? 'Create your' : 'Welcome back to'}<br /><span>{isSignup ? 'Lyu ERP account.' : 'the factory floor.'}</span></h2>
+        <p className="auth-intro">{isSignup ? 'Create an account, then ask your administrator to assign production modules.' : 'Sign in to your assigned factory workspace.'}</p>
         <div className="auth-tabs"><button className={!isSignup ? 'active' : ''} onClick={() => changeMode('signin')} type="button">Sign in</button><button className={isSignup ? 'active' : ''} onClick={() => changeMode('signup')} type="button">Create account</button></div>
         <form onSubmit={handleSubmit} className="auth-form">
           {isSignup && <label>Your name<input autoComplete="name" value={name} onChange={(event) => setName(event.target.value)} placeholder="Alex Morgan" required maxLength={80} /></label>}

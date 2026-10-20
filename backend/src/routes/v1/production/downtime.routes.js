@@ -53,18 +53,26 @@ router.get('/logs', async (req, res) => {
  */
 router.post('/logs', async (req, res) => {
   try {
-    const { companyId, workCenterCode, downtimeReasonId, startTime, endTime, durationMinutes, technicianId, notes } = req.body;
-    const newLog = await insertAndFetch(db, machineDowntimeLogs, {
-      ...(dbType === 'mysql' ? { companyId: companyId || 'DEFAULT' } : {}),
-      workCenterCode,
-      downtimeReasonId,
-      startTime: new Date(startTime),
-      endTime: endTime ? new Date(endTime) : null,
-      durationMinutes: durationMinutes ? Number(durationMinutes) : null,
-      technicianId: technicianId || null,
-      notes: notes || null,
+    const entries = Array.isArray(req.body.incidents) ? req.body.incidents : [req.body];
+    if (entries.length < 1 || entries.length > 20) {
+      return res.status(400).json({ status: 'fail', message: 'Submit between 1 and 20 downtime incidents at a time.' });
+    }
+    const inserted = await db.transaction(async (tx) => {
+      const values = entries.map(({ companyId, workCenterCode, downtimeReasonId, startTime, endTime, durationMinutes, technicianId, notes }) => ({
+        ...(dbType === 'mysql' ? { companyId: companyId || 'DEFAULT' } : {}),
+        workCenterCode,
+        downtimeReasonId,
+        startTime: new Date(startTime),
+        endTime: endTime ? new Date(endTime) : null,
+        durationMinutes: durationMinutes ? Number(durationMinutes) : null,
+        technicianId: technicianId || null,
+        notes: notes || null,
+      }));
+      const records = [];
+      for (const value of values) records.push(await insertAndFetch(tx, machineDowntimeLogs, value));
+      return records;
     });
-    res.status(201).json({ status: 'success', data: newLog });
+    res.status(201).json({ status: 'success', data: Array.isArray(req.body.incidents) ? inserted : inserted[0] });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

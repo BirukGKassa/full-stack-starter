@@ -2,6 +2,11 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link, Navigate } from 'react-router-dom';
 import { authClient } from '../../lib/auth-client.js';
 import { loadProductionData, productionApi } from '../../lib/production-api.js';
+import { useTheme } from '../../lib/theme.js';
+import AdminSettings from './components/admin-settings.js';
+import { AuditContext, DataTable, EntryCard, Input, MetricCard, Select, Textarea } from './components/ui.js';
+import DowntimeView from './views/downtime.js';
+import ProductionEntryView from './views/production-entry.js';
 
 const companies = [
   { code: 'AMH', name: 'Aluminum extrusion' },
@@ -34,39 +39,6 @@ const resourceErrors = {
   machineOee: 'Machine OEE',
 };
 
-function localDateTime(date = new Date()) {
-  const local = new Date(date.getTime() - date.getTimezoneOffset() * 60000);
-  return local.toISOString().slice(0, 16);
-}
-
-async function openBomEditor(bom) {
-  setDetailLoading(true);
-  try {
-    setEditingBom(await productionApi.getBom(bom.id));
-  } catch (error) {
-    setToast({ kind: 'error', message: error.message || 'Unable to load this product recipe.' });
-  } finally {
-    setDetailLoading(false);
-  }
-}
-
-async function saveBomEdit(event) {
-  event.preventDefault();
-  const form = new FormData(event.currentTarget);
-  try {
-    await productionApi.updateBom(editingBom.id, {
-      productName: String(form.get('productName')).trim(),
-      standardRunMinutes: Number(form.get('standardRunMinutes')),
-      updatedAt: new Date().toISOString(),
-    });
-    setEditingBom(null);
-    setToast({ kind: 'success', message: 'Product recipe updated.' });
-    await refresh(false);
-  } catch (error) {
-    setToast({ kind: 'error', message: error.message || 'Unable to update the product recipe.' });
-  }
-}
-
 function toIso(value) {
   return value ? new Date(value).toISOString() : null;
 }
@@ -85,75 +57,6 @@ function companyMatches(record, company, keys) {
   if (!company) return true;
   if (record.companyId) return record.companyId === company;
   return keys.some((key) => String(record[key] || '').toUpperCase().startsWith(`${company}-`) || String(record[key] || '').toUpperCase() === company);
-}
-
-function Input({ label, name, type = 'text', required = true, defaultValue, min, step, placeholder, help }) {
-  return (
-    <label className="prod-field">
-      <span>{label}{required && <b aria-hidden="true"> *</b>}</span>
-      <input name={name} type={type} required={required} defaultValue={defaultValue} min={min} step={step} placeholder={placeholder} />
-      {help && <small>{help}</small>}
-    </label>
-  );
-}
-
-function Select({ label, name, options, required = true, placeholder = 'Choose one', defaultValue }) {
-  return (
-    <label className="prod-field">
-      <span>{label}{required && <b aria-hidden="true"> *</b>}</span>
-      <select name={name} required={required} defaultValue={defaultValue || ''}>
-        <option value="" disabled>{placeholder}</option>
-        {options.map((option) => <option value={option.value} key={option.value}>{option.label}</option>)}
-      </select>
-    </label>
-  );
-}
-
-function Textarea({ label, name, required = false, placeholder }) {
-  return (
-    <label className="prod-field prod-field-wide">
-      <span>{label}</span>
-      <textarea name={name} rows="2" required={required} placeholder={placeholder} />
-    </label>
-  );
-}
-
-function EntryCard({ title, description, onSubmit, busy, submitLabel = 'Save entry', children }) {
-  return (
-    <form className="prod-card prod-entry-card" onSubmit={onSubmit}>
-      <div className="prod-card-heading">
-        <div><h2>{title}</h2><p>{description}</p></div>
-      </div>
-      <div className="prod-form-grid">{children}</div>
-      <div className="prod-form-actions"><span>Fields marked <b>*</b> are required.</span><button className="prod-button prod-button-primary" disabled={busy}>{busy ? 'Saving…' : submitLabel}</button></div>
-    </form>
-  );
-}
-
-function DataTable({ columns, rows, empty = 'No records found yet.' }) {
-  if (!rows.length) return <div className="prod-empty"><span>◌</span><strong>Nothing to show yet</strong><p>{empty}</p></div>;
-  return (
-    <div className="prod-table-wrap">
-      <table className="prod-table">
-        <thead><tr>{columns.map((column) => <th key={column.key}>{column.label}</th>)}</tr></thead>
-        <tbody>{rows.map((row, index) => (
-          <tr key={row.id || row.code || `${row.orderNumber}-${index}`}>
-            {columns.map((column) => <td key={column.key}>{column.render ? column.render(row) : row[column.key] ?? '—'}</td>)}
-          </tr>
-        ))}</tbody>
-      </table>
-    </div>
-  );
-}
-
-function MetricCard({ label, value, note, tone = 'green', icon }) {
-  return (
-    <article className={`prod-metric prod-metric-${tone}`}>
-      <div className="prod-metric-top"><span>{label}</span><i>{icon}</i></div>
-      <strong>{value}</strong>
-      <small>{note}</small>
-    </article>
-  );
 }
 
 function dateKey(value) {
@@ -186,9 +89,11 @@ function reportCsv(rows, periodType) {
 
 export default function ProductionPage() {
   const { data: session, isPending } = authClient.useSession();
+  const { theme, toggleTheme } = useTheme();
   const [activeView, setActiveView] = useState('overview');
   const [selectedCompany, setSelectedCompany] = useState('AMH');
   const [resources, setResources] = useState({});
+  const [access, setAccess] = useState(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -200,11 +105,23 @@ export default function ProductionPage() {
   const [details, setDetails] = useState(null);
   const [editingBom, setEditingBom] = useState(null);
   const [detailLoading, setDetailLoading] = useState(false);
+  const [downtimeCount, setDowntimeCount] = useState(1);
+  const [workstation, setWorkstation] = useState(() => {
+    try {
+      return localStorage.getItem('lyu-erp-workstation') || '';
+    } catch {
+      return '';
+    }
+  });
 
   const refresh = useCallback(async (showSpinner = true) => {
     if (showSpinner) setRefreshing(true);
     try {
-      setResources(await loadProductionData());
+      const currentAccess = await productionApi.getAccess();
+      setAccess(currentAccess);
+      setResources(await loadProductionData(currentAccess.modules, currentAccess.user?.isAdmin));
+    } catch (error) {
+      setToast({ kind: 'error', message: error.message || 'Could not load production permissions.' });
     } finally {
       setLoading(false);
       if (showSpinner) setRefreshing(false);
@@ -212,6 +129,10 @@ export default function ProductionPage() {
   }, []);
 
   useEffect(() => { refresh(false); }, [refresh]);
+  useEffect(() => {
+    if (!access?.modules?.length) return;
+    if (!access.modules.includes(activeView) && !(access.user?.isAdmin && activeView === 'settings')) setActiveView(access.modules[0]);
+  }, [access, activeView]);
 
   useEffect(() => {
     if (!toast) return undefined;
@@ -223,7 +144,19 @@ export default function ProductionPage() {
     Object.entries(resources).map(([key, resource]) => [key, resource?.data || []]),
   ), [resources]);
   const code = selectedCompany;
+  const isAdmin = Boolean(access?.user?.isAdmin);
   const companyName = companies.find((company) => company.code === code)?.name || 'All factories';
+  const auditEntries = data.audit || [];
+
+  function updateWorkstation(value) {
+    const label = value.slice(0, 100);
+    setWorkstation(label);
+    try {
+      localStorage.setItem('lyu-erp-workstation', label);
+    } catch (error) {
+      setToast({ kind: 'error', message: `Could not save workstation label: ${error.message}` });
+    }
+  }
 
   const scoped = useMemo(() => ({
     boms: (data.boms || []).filter((row) => companyMatches(row, code, ['productSku'])),
@@ -308,6 +241,33 @@ export default function ProductionPage() {
     }
   }
 
+  async function openBomEditor(bom) {
+    setDetailLoading(true);
+    try {
+      setEditingBom(await productionApi.getBom(bom.id));
+    } catch (error) {
+      setToast({ kind: 'error', message: error.message || 'Unable to load this product recipe.' });
+    } finally {
+      setDetailLoading(false);
+    }
+  }
+
+  async function saveBomEdit(event) {
+    event.preventDefault();
+    const form = new FormData(event.currentTarget);
+    try {
+      await productionApi.updateBom(editingBom.id, {
+        productName: String(form.get('productName')).trim(),
+        standardRunMinutes: Number(form.get('standardRunMinutes')),
+      });
+      setEditingBom(null);
+      setToast({ kind: 'success', message: 'Product recipe updated.' });
+      await refresh(false);
+    } catch (error) {
+      setToast({ kind: 'error', message: error.message || 'Unable to update the product recipe.' });
+    }
+  }
+
   async function generateOperatorReport(event) {
     event.preventDefault();
     const form = new FormData(event.currentTarget);
@@ -356,6 +316,9 @@ export default function ProductionPage() {
 
   if (isPending) return <div className="page-loading">Loading production workspace<span>✳</span></div>;
   if (!session?.user) return <Navigate to="/go?mode=signin" replace />;
+  if (!loading && access?.modules?.length === 0) {
+    return <main className="prod-no-access"><span>LYU ERP</span><h1>No production modules assigned</h1><p>Ask your administrator to assign the modules you need.</p><Link to="/dashboard">Return to dashboard</Link></main>;
+  }
 
   const currentNav = navigation.find((item) => item.id === activeView);
   const orderOptions = scoped.orders.map((order) => ({ value: order.id, label: `${order.orderNumber} · ${order.productSku}` }));
@@ -444,128 +407,6 @@ export default function ProductionPage() {
           { key: 'standardRunMinutes', label: 'Run minutes' }, { key: 'actions', label: 'Actions', render: (row) => <div className="prod-row-actions"><button className="prod-text-button" onClick={() => loadDetails('BOM recipe', () => productionApi.getBom(row.id))}>View recipe</button><button className="prod-text-button" onClick={() => openBomEditor(row)}>Edit</button><button className="prod-text-button prod-danger-text" onClick={() => { if (window.confirm(`Deactivate ${row.productSku}? Existing orders will not be changed.`)) runAction(() => productionApi.deactivateBom(row.id), 'BOM deactivated.'); }}>Deactivate</button></div> },
         ]} rows={scoped.boms} empty="Create a recipe to add your factory's first product." />
       </section>
-    </>
-  );
-
-  const renderProductionEntry = () => (
-    <>
-      <div className="prod-page-heading"><p className="prod-eyebrow">DATA ENTRY · SHOP FLOOR</p><h1>Record a production shift</h1><p>One quick entry captures output, scrap, material trace, and any stoppage for the shift.</p></div>
-      <EntryCard title="Shift production report" description="The order totals update automatically when this entry is saved." onSubmit={(event) => submit(event, (form) => {
-        const downtimeReasonId = form.get('downtimeReasonId');
-        const lotNumber = String(form.get('lotNumber') || '').trim();
-        return productionApi.createProductionLog({
-          manufacturingOrderId: form.get('manufacturingOrderId'),
-          workCenterCode: form.get('workCenterCode'),
-          operatorId: String(form.get('operatorId')).trim(),
-          shiftName: form.get('shiftName'),
-          startTime: toIso(form.get('startTime')),
-          endTime: toIso(form.get('endTime')),
-          durationMinutes: Number(form.get('durationMinutes')),
-          outputQuantity: Number(form.get('outputQuantity')),
-          outputUnit: form.get('outputUnit'),
-          scrapQuantity: Number(form.get('scrapQuantity') || 0),
-          companyId: code,
-          notes: String(form.get('notes') || '').trim() || null,
-          machineDowntime: downtimeReasonId ? {
-            downtimeReasonId,
-            downtimeMinutes: Number(form.get('downtimeMinutes') || 0),
-            technicianId: String(form.get('technicianId') || '').trim() || null,
-            notes: String(form.get('downtimeNotes') || '').trim() || null,
-          } : null,
-          materialLotUsed: lotNumber ? {
-            componentSku: String(form.get('componentSku') || '').trim(),
-            lotNumber,
-            quantityUsed: Number(form.get('materialQuantity') || 0),
-            unitOfMeasure: String(form.get('materialUnit') || '').trim() || form.get('outputUnit'),
-          } : null,
-        });
-      }, 'Production shift saved successfully.')} busy={saving} submitLabel="Save shift report">
-        <Select label="Manufacturing order" name="manufacturingOrderId" options={orderOptions} placeholder={orderOptions.length ? 'Select the active order' : 'Create a work order first'} />
-        <Select label="Machine / line" name="workCenterCode" options={machineOptions} placeholder={machineOptions.length ? 'Select work center' : 'Register a machine first'} />
-        <Input label="Operator ID" name="operatorId" placeholder={`${code}-OP-01`} />
-        <Select label="Shift" name="shiftName" options={[{ value: 'Morning_Shift', label: 'Morning shift' }, { value: 'Evening_Shift', label: 'Evening shift' }, { value: 'Night_Shift', label: 'Night shift' }]} />
-        <Input label="Shift start" name="startTime" type="datetime-local" defaultValue={localDateTime(new Date(new Date().setHours(6, 0, 0, 0)))} />
-        <Input label="Shift end" name="endTime" type="datetime-local" defaultValue={localDateTime(new Date(new Date().setHours(14, 0, 0, 0)))} />
-        <Input label="Shift duration (minutes)" name="durationMinutes" type="number" min="1" defaultValue="480" />
-        <Input label="Good output" name="outputQuantity" type="number" min="0" step="0.01" />
-        <Input label="Output unit" name="outputUnit" placeholder="piece, kg, meter…" />
-        <Input label="Scrap quantity" name="scrapQuantity" type="number" min="0" step="0.01" required={false} defaultValue="0" />
-        <Textarea label="Shift notes" name="notes" placeholder="Production notes, handover details, or unusual events" />
-        <div className="prod-form-divider"><span>OPTIONAL · CAPTURE STOPPAGE WITH THIS SHIFT</span></div>
-        <Select label="Downtime reason" name="downtimeReasonId" options={reasonOptions} placeholder="No downtime to record" required={false} />
-        <Input label="Downtime minutes" name="downtimeMinutes" type="number" min="0" required={false} defaultValue="0" />
-        <Input label="Technician ID" name="technicianId" required={false} />
-        <Input label="Downtime note" name="downtimeNotes" required={false} />
-        <div className="prod-form-divider"><span>OPTIONAL · RAW MATERIAL TRACE</span></div>
-        <Input label="Component SKU" name="componentSku" required={false} placeholder="e.g. RAW-MATERIAL-01" />
-        <Input label="Supplier lot number" name="lotNumber" required={false} placeholder="Enter lot to enable traceability" />
-        <Input label="Quantity consumed" name="materialQuantity" type="number" min="0" step="0.01" required={false} />
-        <Input label="Material unit" name="materialUnit" required={false} placeholder="kg, pieces, meter…" />
-      </EntryCard>
-      <section className="prod-card prod-table-card"><div className="prod-card-heading"><div><h2>Recent entries · {code}</h2><p>Saved production reports are listed here immediately.</p></div><button className="prod-text-button" onClick={() => refresh()}>Refresh ↻</button></div><DataTable columns={[
-        { key: 'startTime', label: 'Start', render: (row) => new Date(row.startTime).toLocaleString() },
-        { key: 'workCenterCode', label: 'Machine' }, { key: 'manufacturingOrderId', label: 'Work order', render: (row) => scoped.orders.find((order) => order.id === row.manufacturingOrderId)?.orderNumber || row.manufacturingOrderId },
-        { key: 'operatorId', label: 'Operator' }, { key: 'outputQuantity', label: 'Good output', render: (row) => `${formatNumber(row.outputQuantity)} ${row.outputUnit || ''}` }, { key: 'scrapQuantity', label: 'Scrap', render: (row) => formatNumber(row.scrapQuantity) },
-      ]} rows={recentLogs} empty="No production shift logs for this factory yet." /></section>
-    </>
-  );
-
-  const renderDowntime = () => (
-    <>
-      <div className="prod-page-heading"><p className="prod-eyebrow">DATA ENTRY · EQUIPMENT</p><h1>Machine downtime</h1><p>Log a machine stoppage separately, then resolve it when the line is running again.</p></div>
-      <div className="prod-content-grid prod-content-grid-even">
-        <EntryCard title="Log a stoppage" description="Leave the duration blank to create an open incident to resolve later." onSubmit={(event) => submit(event, (form) => {
-          const duration = form.get('durationMinutes');
-          const startTime = toIso(form.get('startTime'));
-          return productionApi.createDowntime({
-            companyId: code,
-            workCenterCode: form.get('workCenterCode'),
-            downtimeReasonId: form.get('downtimeReasonId'),
-            startTime,
-            endTime: duration ? new Date(new Date(startTime).getTime() + Number(duration) * 60000).toISOString() : null,
-            durationMinutes: duration ? Number(duration) : null,
-            technicianId: String(form.get('technicianId') || '').trim() || null,
-            notes: String(form.get('notes') || '').trim() || null,
-          });
-        }, 'Machine downtime recorded.')} busy={saving}>
-          <Select label="Machine / line" name="workCenterCode" options={machineOptions} placeholder={machineOptions.length ? 'Select work center' : 'Register a machine first'} />
-          <Select label="Reason" name="downtimeReasonId" options={reasonOptions} placeholder={reasonOptions.length ? 'Select downtime reason' : 'Add a downtime reason first'} />
-          <Input label="Stoppage start" name="startTime" type="datetime-local" defaultValue={localDateTime()} />
-          <Input label="Duration (minutes)" name="durationMinutes" type="number" min="1" required={false} placeholder="Leave blank if still stopped" />
-          <Input label="Technician ID" name="technicianId" required={false} />
-          <Textarea label="Notes" name="notes" placeholder="Describe the issue or work being done" />
-        </EntryCard>
-        <EntryCard title="Add a downtime reason" description="Keep reason codes consistent across the factory." onSubmit={(event) => submit(event, (form) => productionApi.createDowntimeReason({
-          category: form.get('category'),
-          reasonCode: String(form.get('reasonCode')).trim().toUpperCase(),
-          description: form.get('description'),
-          requiresTechnician: form.get('requiresTechnician') === 'on',
-        }), 'Downtime reason added.')} busy={saving}>
-          <Input label="Category" name="category" placeholder="Mechanical, changeover, material…" />
-          <Input label="Reason code" name="reasonCode" placeholder={`${code}-MECHANICAL`} />
-          <Input label="Description" name="description" />
-          <label className="prod-check-field"><input type="checkbox" name="requiresTechnician" /> Technician required</label>
-        </EntryCard>
-      </div>
-      <section className="prod-card prod-table-card">
-        <div className="prod-card-heading"><div><h2>Downtime incidents</h2><p>Open and resolved machine stoppages</p></div><span className="prod-pill prod-pill-red">{scoped.downtime.filter((row) => !row.endTime).length} open</span></div>
-        <DataTable columns={[
-          { key: 'startTime', label: 'Started', render: (row) => new Date(row.startTime).toLocaleString() },
-          { key: 'workCenterCode', label: 'Machine' },
-          { key: 'downtimeReasonId', label: 'Reason', render: (row) => scoped.downtimeReasons.find((reason) => reason.id === row.downtimeReasonId)?.description || row.downtimeReasonId },
-          { key: 'durationMinutes', label: 'Duration', render: (row) => row.durationMinutes ? `${row.durationMinutes} min` : 'Ongoing' },
-          { key: 'status', label: 'Status', render: (row) => <span className={`prod-pill ${row.endTime ? 'prod-pill-green' : 'prod-pill-red'}`}>{row.endTime ? 'Resolved' : 'Open'}</span> },
-          { key: 'actions', label: '', render: (row) => !row.endTime && <button className="prod-button prod-button-small prod-button-outline" onClick={() => runAction(() => productionApi.resolveDowntime(row.id, { endTime: new Date().toISOString() }), 'Downtime incident resolved.')}>Resolve</button> },
-        ]} rows={[...scoped.downtime].sort((a, b) => new Date(b.startTime) - new Date(a.startTime))} empty="No downtime incidents recorded." />
-      </section>
-      <section className="prod-card prod-table-card"><div className="prod-card-heading"><div><h2>Machine OEE shift summaries</h2><p>Operational effectiveness data from the analytics API</p></div></div><DataTable columns={[
-        { key: 'performanceDate', label: 'Date', render: (row) => formatDate(row.performanceDate) },
-        { key: 'workCenterCode', label: 'Machine' }, { key: 'shiftName', label: 'Shift' },
-        { key: 'availabilityRate', label: 'Availability', render: (row) => `${formatNumber(row.availabilityRate)}%` },
-        { key: 'performanceRate', label: 'Performance', render: (row) => `${formatNumber(row.performanceRate)}%` },
-        { key: 'qualityRate', label: 'Quality', render: (row) => `${formatNumber(row.qualityRate)}%` },
-        { key: 'oeeScore', label: 'OEE', render: (row) => `${formatNumber(row.oeeScore)}%` },
-      ]} rows={[...scoped.machineOee].sort((a, b) => new Date(b.performanceDate) - new Date(a.performanceDate)).slice(0, 25)} empty="Machine summaries will appear here when available." /></section>
     </>
   );
 
@@ -753,31 +594,33 @@ export default function ProductionPage() {
 
   const viewContent = {
     overview: renderOverview,
-    production: renderProductionEntry,
-    downtime: renderDowntime,
+    production: () => <ProductionEntryView code={code} orderOptions={orderOptions} machineOptions={machineOptions} reasonOptions={reasonOptions} scoped={scoped} recentLogs={recentLogs} saving={saving} submit={submit} refresh={refresh} formatNumber={formatNumber} />,
+    downtime: () => <DowntimeView code={code} machineOptions={machineOptions} reasonOptions={reasonOptions} scoped={scoped} saving={saving} submit={submit} runAction={runAction} downtimeCount={downtimeCount} setDowntimeCount={setDowntimeCount} formatDate={formatDate} formatNumber={formatNumber} />,
     products: renderProducts,
     orders: renderOrders,
     machines: renderMachines,
     quality: renderQuality,
     reports: renderReports,
-  }[activeView]();
+  }[activeView]?.();
 
   return (
+    <AuditContext.Provider value={auditEntries}>
     <div className="prod-shell">
       <aside className="prod-sidebar">
-        <Link to="/" className="brand prod-brand"><span className="brand-mark"><span /></span><span>northstar<span className="brand-dot">.</span></span></Link>
+        <Link to="/" className="brand prod-brand"><span className="brand-mark"><span /></span><span>LYU<span className="brand-dot"> ERP</span></span></Link>
         <div className="prod-factory-select"><span>ACTIVE FACTORY</span><select aria-label="Select factory" value={selectedCompany} onChange={(event) => { setSelectedCompany(event.target.value); setOperatorReport(null); }}><option value="">All factories</option>{companies.map((company) => <option value={company.code} key={company.code}>{company.code} · {company.name}</option>)}</select></div>
-        {['WORKSPACE', 'DATA ENTRY', 'OPERATIONS', 'INSIGHTS'].map((group) => <div className="prod-nav-group" key={group}>
-          <p>{group}</p>{navigation.filter((item) => item.group === group).map((item) => <button key={item.id} onClick={() => setActiveView(item.id)} className={`prod-nav-link ${activeView === item.id ? 'prod-nav-link-active' : ''}`}><span>{item.icon}</span>{item.label}{item.id === 'downtime' && activeDowntime.length > 0 && <i>{activeDowntime.length}</i>}</button>)}
+        {['WORKSPACE', 'DATA ENTRY', 'OPERATIONS', 'INSIGHTS', 'ADMIN'].map((group) => <div className="prod-nav-group" key={group}>
+          <p>{group}</p>{navigation.filter((item) => item.group === group && (isAdmin || access?.modules?.includes(item.id))).map((item) => <button key={item.id} onClick={() => setActiveView(item.id)} className={`prod-nav-link ${activeView === item.id ? 'prod-nav-link-active' : ''}`}><span>{item.icon}</span>{item.label}{item.id === 'downtime' && activeDowntime.length > 0 && <i>{activeDowntime.length}</i>}</button>)}
+          {group === 'ADMIN' && isAdmin && <button className={`prod-nav-link ${activeView === 'settings' ? 'prod-nav-link-active' : ''}`} onClick={() => setActiveView('settings')}><span>⚙</span>System settings</button>}
         </div>)}
         <div className="prod-sidebar-bottom"><div className="prod-user"><span>{session.user.name?.[0]?.toUpperCase() || 'U'}</span><div><strong>{session.user.name}</strong><small>Production workspace</small></div></div><Link to="/dashboard" className="prod-back-link">← Personal dashboard</Link></div>
       </aside>
       <main className="prod-main">
-        <header className="prod-topbar"><div><span className="prod-topbar-mobile">{currentNav?.label}</span><span className="prod-breadcrumb">Northstar <i>/</i> Production <i>/</i> <strong>{currentNav?.label}</strong></span></div><div className="prod-topbar-right"><span className="prod-live"><i /> Operations online</span><button className="prod-icon-button" aria-label="Refresh production data" onClick={() => refresh()} disabled={refreshing}>{refreshing ? '…' : '↻'}</button><span className="prod-user-initial">{session.user.name?.[0]?.toUpperCase() || 'U'}</span></div></header>
+        <header className="prod-topbar"><div><span className="prod-topbar-mobile">{currentNav?.label || 'System settings'}</span><span className="prod-breadcrumb">Lyu ERP <i>/</i> Production <i>/</i> <strong>{currentNav?.label || 'System settings'}</strong></span></div><div className="prod-topbar-right"><label className="prod-workstation-control" title="A label saved in this browser; the browser cannot read your PC hostname."><span>Workstation label</span><input aria-label="Workstation label" value={workstation} onChange={(event) => updateWorkstation(event.target.value)} placeholder="Name this workstation" /></label><span className="prod-live"><i /> Operations online</span><button className="theme-toggle prod-theme-toggle" type="button" onClick={toggleTheme}>{theme === 'light' ? '☾ Dark' : '☀ Light'}</button><button className="prod-icon-button" aria-label="Refresh production data" onClick={() => refresh()} disabled={refreshing}>{refreshing ? '…' : '↻'}</button><span className="prod-user-initial">{session.user.name?.[0]?.toUpperCase() || 'U'}</span></div></header>
         {loading ? <div className="prod-loading"><span className="prod-loader" />Loading factory data…</div> : <div className="prod-view">
           <div className="prod-view-heading"><div><span className="prod-factory-chip">{code || 'ALL'} FACTORY</span><span className="prod-today-date">{new Date().toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })}</span></div><button className="prod-button prod-button-outline" onClick={() => refresh()} disabled={refreshing}>{refreshing ? 'Refreshing…' : '↻ Refresh data'}</button></div>
             {apiErrors.length > 0 && <section className="prod-card prod-api-warning prod-global-warning"><strong>Some production services could not be reached.</strong><p>{apiErrors.map(([key, value]) => `${resourceErrors[key]}: ${value.error}`).join(' · ')}</p><button className="prod-text-button" onClick={() => refresh()}>Retry failed data ↻</button></section>}
-          {viewContent}
+          {activeView === 'settings' && isAdmin ? <AdminSettings onNotify={setToast} /> : viewContent}
           <footer className="prod-footer"><span>PRODUCTION OPERATIONS</span><span>{code || 'MULTI-FACTORY'} · {new Date().getFullYear()}</span></footer>
         </div>}
       </main>
@@ -786,5 +629,6 @@ export default function ProductionPage() {
       {editingBom && <div className="prod-detail-backdrop" role="presentation" onClick={() => setEditingBom(null)}><section className="prod-detail-modal" role="dialog" aria-modal="true" aria-label="Edit product recipe" onClick={(event) => event.stopPropagation()}><div className="prod-modal-heading"><div><span className="prod-eyebrow">PRODUCT SETUP</span><h2>Edit recipe</h2></div><button className="prod-icon-button" onClick={() => setEditingBom(null)} aria-label="Close edit form">×</button></div><p className="prod-edit-sku">{editingBom.productSku}</p><form className="prod-modal-form" onSubmit={saveBomEdit}><Input label="Product name" name="productName" defaultValue={editingBom.productName} /><Input label="Standard run time (minutes)" name="standardRunMinutes" type="number" min="0" step="0.1" defaultValue={editingBom.standardRunMinutes} /><button className="prod-button prod-button-primary">Save changes</button></form></section></div>}
       {toast && <div className={`prod-toast prod-toast-${toast.kind}`} role={toast.kind === 'error' ? 'alert' : 'status'}><span>{toast.kind === 'success' ? '✓' : '!'}</span><p>{toast.message}</p><button onClick={() => setToast(null)} aria-label="Dismiss notification">×</button></div>}
     </div>
+    </AuditContext.Provider>
   );
 }

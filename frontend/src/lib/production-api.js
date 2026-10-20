@@ -1,10 +1,20 @@
 const basePath = '/api/v1/production';
 
+function workstationName() {
+  try {
+    return window.localStorage.getItem('lyu-erp-workstation')
+      || 'Unlabeled workstation';
+  } catch {
+    return 'Unlabeled workstation';
+  }
+}
+
 async function request(path, options = {}) {
   const response = await fetch(`${basePath}${path}`, {
     credentials: 'include',
     ...options,
     headers: {
+      'X-Workstation-Name': workstationName(),
       ...(options.body ? { 'Content-Type': 'application/json' } : {}),
       ...options.headers,
     },
@@ -19,6 +29,11 @@ async function request(path, options = {}) {
 }
 
 export const productionApi = {
+  getAccess: () => request('/access'),
+  listAudit: () => request('/audit?limit=250'),
+  listUsers: () => request('/settings/users'),
+  createUser: (body) => request('/settings/users', { method: 'POST', body }),
+  updateUserModules: (userId, modules) => request(`/settings/users/${encodeURIComponent(userId)}/modules`, { method: 'PUT', body: { modules } }),
   listBoms: () => request('/boms'),
   createBom: (body) => request('/boms', { method: 'POST', body }),
   getBom: (id) => request(`/boms/${encodeURIComponent(id)}`),
@@ -52,21 +67,26 @@ export const productionApi = {
   getOperatorPerformance: (operatorId, startDate, endDate) => request(`/analytics/operator-performance?${new URLSearchParams({ operatorId, startDate, endDate })}`),
 };
 
-export async function loadProductionData() {
-  const entries = await Promise.all(Object.entries({
-    boms: productionApi.listBoms,
-    workCenters: productionApi.listWorkCenters,
-    orders: productionApi.listOrders,
-    productionLogs: productionApi.listProductionLogs,
-    downtime: productionApi.listDowntime,
-    downtimeReasons: productionApi.listDowntimeReasons,
-    qualityInspections: productionApi.listQualityInspections,
-    tools: productionApi.listTools,
-    materialLots: productionApi.listMaterialLots,
-    machineOee: productionApi.listMachineOee,
-  }).map(async ([key, load]) => {
+export async function loadProductionData(modules = [], isAdmin = false) {
+  const access = new Set(isAdmin ? ['overview', 'production', 'downtime', 'products', 'orders', 'machines', 'quality', 'reports'] : modules);
+  const loads = {
+    boms: { modules: ['overview', 'products', 'orders'], load: productionApi.listBoms },
+    workCenters: { modules: ['overview', 'machines', 'production', 'downtime', 'orders', 'quality'], load: productionApi.listWorkCenters },
+    orders: { modules: ['overview', 'orders', 'production', 'quality', 'reports'], load: productionApi.listOrders },
+    productionLogs: { modules: ['overview', 'production', 'reports'], load: productionApi.listProductionLogs },
+    downtime: { modules: ['overview', 'downtime', 'production', 'reports'], load: productionApi.listDowntime },
+    downtimeReasons: { modules: ['overview', 'downtime', 'production'], load: productionApi.listDowntimeReasons },
+    qualityInspections: { modules: ['overview', 'quality'], load: productionApi.listQualityInspections },
+    tools: { modules: ['overview', 'machines'], load: productionApi.listTools },
+    materialLots: { modules: ['overview', 'quality'], load: productionApi.listMaterialLots },
+    machineOee: { modules: ['overview', 'reports'], load: productionApi.listMachineOee },
+    audit: { modules: ['overview', 'production', 'downtime', 'products', 'orders', 'machines', 'quality', 'reports'], load: productionApi.listAudit },
+  };
+  const entries = await Promise.all(Object.entries(loads)
+    .filter(([, resource]) => resource.modules.some((module) => access.has(module)))
+    .map(async ([key, resource]) => {
     try {
-      return [key, { data: await load(), error: null }];
+      return [key, { data: await resource.load(), error: null }];
     } catch (error) {
       return [key, { data: [], error: error.message }];
     }

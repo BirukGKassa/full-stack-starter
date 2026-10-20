@@ -19,3 +19,9 @@ Better Auth is mounted at `/api/auth/*`; the session and database health endpoin
 ## Production operations
 
 After signing in, open `/production` in the frontend to record shifts, machine downtime, work orders, product recipes, inspections, material lots, and tool maintenance. The workspace supports factory-specific filtering, weekly/monthly production summaries, CSV export, and operator analytics. Its endpoints are mounted under `/api/v1/production`; apply the selected Drizzle schema before using the workspace. MySQL demo data for AMH, AMR, KORKI, and RASA is documented in [`seeds/mysql/README.md`](./seeds/mysql/README.md).
+
+### Production administrator setup
+
+Set `LYU_ADMIN_EMAILS` in the root `.env` to a comma-separated list of trusted administrator email addresses, for example `LYU_ADMIN_EMAILS=admin@example.com`. Restart the backend after changing it. Register or sign in with one of those addresses, then open **Production → System settings** to create users and assign module access. New accounts are created with a temporary password entered by the administrator; share it securely.
+
+Run `npm run db:push` in `backend` after deploying these settings to create the module-assignment and audit tables. Users without module assignments cannot read production APIs. Record attribution includes the authenticated user and a workstation label saved in that user's browser; browsers do not expose a PC's hostname to the application.

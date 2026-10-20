@@ -8,3 +8,4 @@ export * from "./001/tools.js";
 export * from "./001/quality-inspections.js";
 export * from "./001/material-traces.js";
 export * from "./001/performance-summaries.js";
+export * from "./001/operational-settings.js";

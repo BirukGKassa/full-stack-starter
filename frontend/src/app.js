@@ -4,6 +4,7 @@ import HomePage from './app/page.js';
 import GoPage from './app/go/page.js';
 import DashboardPage from './app/dashboard/page.js';
 import ProductionPage from './app/production/page.js';
+import { ThemeProvider } from './lib/theme.js';
 
 const router = createBrowserRouter([
   {
@@ -19,5 +20,5 @@ const router = createBrowserRouter([
 ]);
 
 export default function App() {
-  return <RouterProvider router={router} />;
+  return <ThemeProvider><RouterProvider router={router} /></ThemeProvider>;
 }

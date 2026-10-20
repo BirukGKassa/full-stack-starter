@@ -1,50 +1,56 @@
 import { Link } from 'react-router-dom';
 
-const principles = [
-  { number: '01', title: 'Find your focus', text: 'Bring the important things into one clear, calm place.' },
-  { number: '02', title: 'Make steady progress', text: 'Turn big intentions into small, satisfying next steps.' },
-  { number: '03', title: 'Keep your balance', text: 'Build a rhythm that makes room for your best work.' },
+const features = [
+  { number: '01', title: 'Run production', text: 'Record shift output, scrap, machine events, and material usage as the work happens.', icon: '↗' },
+  { number: '02', title: 'Keep every line moving', text: 'Track downtime by machine, assign work orders, and see what needs attention.', icon: '◷' },
+  { number: '03', title: 'Make better decisions', text: 'Review quality, traceability, machine performance, and weekly or monthly reports.', icon: '▥' },
+];
+
+const factories = [
+  { code: 'AMH', name: 'Aluminum profiles', kind: 'EXTRUSION' },
+  { code: 'AMR', name: 'PP woven bags', kind: 'PACKAGING' },
+  { code: 'KORKI', name: 'Bottle closures', kind: 'INJECTION MOLDING' },
+  { code: 'RASA', name: 'Flour milling', kind: 'FOOD PRODUCTION' },
 ];
 
 export default function HomePage() {
   return (
-    <>
-      <section className="hero-wrap">
-        <div className="hero-copy">
-          <p className="eyebrow"><span className="eyebrow-line" /> YOUR WORK, IN A BETTER RHYTHM</p>
-          <h1>Make room<br />for <span>good work.</span></h1>
-          <p className="hero-description">A thoughtful home for your ideas, priorities, and progress. Less noise around your work means more space to do it well.</p>
-          <div className="mt-8 flex flex-wrap items-center gap-4">
-            <Link to="/go?mode=signup" className="button button-dark">Find your flow <span aria-hidden="true">↗</span></Link>
-            <a href="#how-it-works" className="inline-flex items-center gap-2 text-sm font-semibold text-ink/65 transition hover:text-forest"><span className="play-icon">▶</span> Take a look around</a>
+    <div className="lyu-landing">
+      <section className="lyu-hero">
+        <div className="lyu-hero-copy">
+          <p className="eyebrow"><span className="eyebrow-line" /> PRODUCTION, QUALITY, AND PEOPLE</p>
+          <h1>Make every<br />shift <em>count.</em></h1>
+          <p className="lyu-hero-description">Lyu ERP brings your shop floor into focus. Capture production, resolve downtime, manage orders, and turn factory data into decisions.</p>
+          <div className="lyu-hero-actions">
+            <Link to="/go?mode=signin" className="button button-dark">Open production workspace <span aria-hidden="true">↗</span></Link>
+            <a href="#system" className="lyu-secondary-link">Explore the system <span aria-hidden="true">↓</span></a>
           </div>
-          <div className="hero-note"><div className="avatar-stack"><span>J</span><span>M</span><span>A</span><span>+</span></div><p>For the work that matters<br /><strong>and the people behind it.</strong></p></div>
+          <div className="lyu-hero-proof"><span className="lyu-pulse" /> <p><strong>One connected workspace</strong><br />for the people who keep production moving.</p></div>
         </div>
-        <div className="hero-art" aria-label="An illustration of a calm workspace dashboard">
-          <div className="sun-disc" />
-          <div className="orbit orbit-one" /><div className="orbit orbit-two" />
-          <div className="art-label label-top"><span className="status-pulse" /> A LITTLE MORE CLARITY</div>
-          <div className="dashboard-card">
-            <div className="card-topline"><span className="mini-mark">n.</span><span className="card-date">MONDAY, OCT 20</span><span className="card-menu">•••</span></div>
-            <p className="card-greeting">Good morning, Alex <span>✳</span></p>
-            <p className="card-subtitle">A fresh week. A clear direction.</p>
-            <div className="focus-panel"><div><span className="focus-overline">TODAY'S FOCUS</span><span className="focus-title">Make it meaningful</span></div><div className="focus-ring"><span>68%</span></div></div>
-            <div className="task-heading"><span>ON YOUR MIND</span><span>3 things</span></div>
-            <div className="task-row"><span className="task-check task-done">✓</span><span className="task-copy task-strike">Sketch out the first idea</span><span className="task-tag tag-green">DONE</span></div>
-            <div className="task-row"><span className="task-check" /><span className="task-copy">Share the early draft</span><span className="task-tag tag-peach">11:30</span></div>
-            <div className="task-row"><span className="task-check" /><span className="task-copy">Make time for a walk</span><span className="task-tag tag-blue">LATER</span></div>
-            <div className="card-bottom"><span>YOUR WEEK, AT A GLANCE</span><div className="week-bars"><i /><i /><i /><i /><i /><i /><i /></div></div>
+        <div className="lyu-hero-visual">
+          <div className="lyu-hero-orbit lyu-hero-orbit-one" /><div className="lyu-hero-orbit lyu-hero-orbit-two" />
+          <div className="lyu-hero-status"><span className="lyu-pulse" /> LIVE PRODUCTION CONTROL</div>
+          <div className="lyu-preview">
+            <div className="lyu-preview-top"><span className="lyu-preview-mark">L.</span><span>FACTORY OVERVIEW</span><span>•••</span></div>
+            <div className="lyu-preview-heading"><div><small>MONDAY · PRODUCTION SUMMARY</small><h2>Good shift, AMH</h2></div><span className="lyu-preview-live">LIVE</span></div>
+            <div className="lyu-preview-metrics"><div><small>GOOD OUTPUT</small><strong>12,480</strong><i>units today</i></div><div><small>OPEN ORDERS</small><strong>08</strong><i>in progress</i></div></div>
+            <div className="lyu-preview-chart-title"><span>SHIFT OUTPUT</span><span>LAST 7 DAYS</span></div>
+            <div className="lyu-preview-bars">{[38, 55, 43, 78, 64, 88, 72].map((height, index) => <span key={index} style={{ height: `${height}%` }} />)}</div>
+            <div className="lyu-preview-bottom"><span><i /> 3 MACHINES RUNNING</span><span>OEE 84.6%</span></div>
           </div>
-          <div className="art-sticker"><span>✳</span><small>GOOD THINGS<br />TAKE FOCUS</small></div>
-          <div className="art-label label-bottom">A CALMER WAY TO GET THERE <span>↗</span></div>
+          <div className="lyu-hero-note"><span>✳</span><div><small>BUILT FOR THE FLOOR</small><strong>Clarity from every shift.</strong></div></div>
         </div>
       </section>
-      <section className="trust-strip"><span>MADE FOR THE WAY YOU THINK</span><div><span>Independent minds</span><i /> <span>Small teams</span><i /> <span>Big intentions</span><i /> <span>Quiet achievers</span></div></section>
-      <section className="principles-section" id="how-it-works">
-        <div className="section-heading"><p className="eyebrow"><span className="eyebrow-line" /> A BETTER KIND OF PRODUCTIVITY</p><h2>Work with intention.<br /><span>Feel good doing it.</span></h2><p>Northstar isn't about doing more. It's about finding a more human way to do what matters.</p></div>
-        <div className="principle-grid">{principles.map((item) => <article className="principle-card" key={item.number}><span>{item.number}</span><div className="principle-icon">✳</div><h3>{item.title}</h3><p>{item.text}</p></article>)}</div>
+      <section className="lyu-factory-strip"><span>SUPPORTING YOUR FACTORIES</span>{factories.map((factory) => <div key={factory.code}><strong>{factory.code}</strong><small>{factory.kind}</small></div>)}</section>
+      <section className="lyu-features" id="system">
+        <div className="lyu-section-heading"><p className="eyebrow"><span className="eyebrow-line" /> THE LYU ERP WORKSPACE</p><h2>Every part of production,<br /><em>working together.</em></h2><p>Practical tools for the data clerks, operators, technicians, and managers who make the work happen.</p></div>
+        <div className="lyu-feature-grid">{features.map((feature) => <article className="lyu-feature-card" key={feature.number}><span className="lyu-feature-number">{feature.number}</span><span className="lyu-feature-icon">{feature.icon}</span><h3>{feature.title}</h3><p>{feature.text}</p></article>)}</div>
       </section>
-      <section className="closing-cta"><div><p className="eyebrow"><span className="eyebrow-line" /> YOUR NEXT CHAPTER STARTS HERE</p><h2>Ready to find<br />your <em>north star?</em></h2></div><Link to="/go?mode=signup" className="button button-light">Create your space <span aria-hidden="true">↗</span></Link><span className="closing-spark">✳</span></section>
-    </>
+      <section className="lyu-factory-section">
+        <div><p className="eyebrow"><span className="eyebrow-line" /> ONE SYSTEM, MULTIPLE FACTORIES</p><h2>Your factory has<br /><em>its own rhythm.</em></h2><p>Keep each plant’s machines, products, operators, and reports organized while sharing one reliable ERP workspace.</p></div>
+        <div className="lyu-factory-list">{factories.map((factory) => <article key={factory.code}><span>{factory.code}</span><strong>{factory.name}</strong><small>{factory.kind}</small><b>↗</b></article>)}</div>
+      </section>
+      <section className="lyu-cta"><div><p className="eyebrow"><span className="eyebrow-line" /> READY WHEN YOUR TEAM IS</p><h2>Bring the factory<br /><em>into focus.</em></h2></div><Link to="/go?mode=signin" className="button button-light">Sign in to Lyu ERP <span aria-hidden="true">↗</span></Link><span className="lyu-cta-mark">L.</span></section>
+    </div>
   );
 }

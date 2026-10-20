@@ -16,6 +16,8 @@ import qualityRoutes from "./routes/v1/production/quality.routes.js";
 import toolsRoutes from "./routes/v1/production/tools.routes.js";
 import traceabilityRoutes from "./routes/v1/production/traceability.routes.js";
 import analyticsRoutes from "./routes/v1/production/analytics.routes.js";
+import settingsRoutes from "./routes/v1/production/settings.routes.js";
+import { productionAccess } from "./routes/v1/production/access.js";
 
 
 const app = express();
@@ -32,6 +34,8 @@ app.use(express.json());
 
 // Register routes
 app.use('/api/news', newsRoutes);
+app.use('/api/v1/production', productionAccess);
+app.use('/api/v1/production', settingsRoutes);
 app.use("/api/v1/production/boms", bomsRoutes);
 app.use('/api/v1/production/work-centers', workCentersRoutes);
 app.use('/api/v1/production/manufacturing-orders', manufacturingOrdersRoutes);
@@ -70,7 +74,7 @@ app.get('/api/health', async (_req, res) => {
 });
 
 app.get('/', (req, res) => {
-  res.json({ name: process.env.APP_NAME || 'Better Auth Express Starter', status: 'ok' });
+  res.json({ name: process.env.APP_NAME || 'Lyu ERP', status: 'ok' });
 });
 
 app.listen(PORT, () => {
