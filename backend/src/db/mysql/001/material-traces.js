@@ -1,4 +1,4 @@
-import { mysqlTable, varchar, float, timestamp } from "drizzle-orm/mysql2";
+import { mysqlTable, varchar, float, timestamp } from "drizzle-orm/mysql-core";
 
 /**
  * MODEL: material_lot_traces

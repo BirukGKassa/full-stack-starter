@@ -1,4 +1,4 @@
-import { mysqlTable, varchar, float, timestamp, datetime } from "drizzle-orm/mysql2";
+import { mysqlTable, varchar, float, timestamp, datetime } from "drizzle-orm/mysql-core";
 
 /**
  * MODEL: manufacturing_orders

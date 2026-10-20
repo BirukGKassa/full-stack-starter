@@ -1,10 +1,20 @@
 {
-  "name": "better-auth-express-starter",
+  "name": "lyu_erp",
+  "author": {
+    "name": "Nisr Deisgn",
+    "email": "nisrdesigns@gmail.com",
+    "url": "https://www.t.me/NisrDesignContact"
+  },
   "version": "0.1.0",
   "private": true,
   "scripts": {
+    "test": "echo \"No tests specified\" && exit 0",
     "dev": "docker compose up --build",
     "dev:down": "docker compose down",
-    "dev:logs": "docker compose logs -f"
+    "dev:logs": "docker compose logs -f",
+    "prepare": "husky"
+  },
+  "devDependencies": {
+    "husky": "^9.1.7"
   }
 }

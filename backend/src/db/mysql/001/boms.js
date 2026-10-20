@@ -1,4 +1,4 @@
-import { mysqlTable, varchar, float, int, boolean, timestamp, json, unique } from "drizzle-orm/mysql2";
+import { mysqlTable, varchar, float, int, boolean, timestamp, json, unique } from "drizzle-orm/mysql-core";
 
 /**
  * MODEL: boms

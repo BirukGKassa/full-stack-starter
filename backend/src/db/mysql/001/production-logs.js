@@ -1,4 +1,4 @@
-import { mysqlTable, varchar, float, int, timestamp } from "drizzle-orm/mysql2";
+import { mysqlTable, varchar, float, int, timestamp, datetime } from "drizzle-orm/mysql-core";
 
 /**
  * MODEL: machine_production_logs
@@ -11,8 +11,8 @@ export const machineProductionLogs = mysqlTable("machine_production_logs", {
   workCenterCode: varchar("work_center_code", { length: 50 }).notNull(), // Machine code, e.g., "PRESS-01"
   operatorId: varchar("operator_id", { length: 50 }).notNull(), // Employee ID, e.g., "AMH-0001"
   shiftName: varchar("shift_name", { length: 50 }).notNull(), // Shift work block, e.g., "Morning_Shift"
-  startTime: timestamp("start_time").notNull(), // Log block start timestamp
-  endTime: timestamp("end_time").notNull(), // Log block end timestamp
+  startTime: datetime("start_time").notNull(), // Log block start timestamp
+  endTime: datetime("end_time").notNull(), // Log block end timestamp
   durationMinutes: int("duration_minutes").notNull(), // Elapsed duration in minutes, e.g., 240
   outputQuantity: float("output_quantity").notNull(), // Good units produced in block, e.g., 250.0
   outputUnit: varchar("output_unit", { length: 50 }).notNull(), // Unit of measure, e.g., "meters"

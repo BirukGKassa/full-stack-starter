@@ -1,4 +1,4 @@
-import { mysqlTable, varchar, int, timestamp, boolean } from "drizzle-orm/mysql2";
+import { mysqlTable, varchar, int, timestamp, boolean, datetime } from "drizzle-orm/mysql-core";
 
 /**
  * MODEL: downtime_reasons

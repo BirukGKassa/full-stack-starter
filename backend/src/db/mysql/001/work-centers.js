@@ -1,4 +1,4 @@
-import { mysqlTable, varchar, float, timestamp, json } from "drizzle-orm/mysql2";
+import { mysqlTable, varchar, float, timestamp, json } from "drizzle-orm/mysql-core";
 
 /**
  * MODEL: work_centers
