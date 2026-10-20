@@ -5,7 +5,18 @@ import { toNodeHandler } from 'better-auth/node';
 import { auth } from './auth.js';
 import { pool } from './db/index.js';
 
-import newsRoutes from "./routes/newsRoutes.js"
+
+import newsRoutes from "./routes/newsRoutes.js";
+import bomsRoutes from "./routes/v1/production/boms.routes.js";
+import workCentersRoutes from "./routes/v1/production/work-centers.routes.js";
+import manufacturingOrdersRoutes from "./routes/v1/production/manufacturing-orders.routes.js";
+import productionLogsRoutes from "./routes/v1/production/production-logs.routes.js";
+import downtimeRoutes from "./routes/v1/production/downtime.routes.js";
+import qualityRoutes from "./routes/v1/production/quality.routes.js";
+import toolsRoutes from "./routes/v1/production/tools.routes.js";
+import traceabilityRoutes from "./routes/v1/production/traceability.routes.js";
+import analyticsRoutes from "./routes/v1/production/analytics.routes.js";
+
 
 const app = express();
 const PORT = Number(process.env.PORT || 3005);
@@ -18,8 +29,19 @@ app.all('/api/auth/*splat', toNodeHandler(auth));
 
 app.use(express.json());
 
+
 // Register routes
 app.use('/api/news', newsRoutes);
+app.use("/api/v1/production/boms", bomsRoutes);
+app.use('/api/v1/production/work-centers', workCentersRoutes);
+app.use('/api/v1/production/manufacturing-orders', manufacturingOrdersRoutes);
+app.use('/api/v1/production/production-logs', productionLogsRoutes);
+app.use('/api/v1/production/downtime', downtimeRoutes);
+app.use('/api/v1/production/quality', qualityRoutes);
+app.use('/api/v1/production/tools', toolsRoutes);
+app.use('/api/v1/production/traceability', traceabilityRoutes);
+app.use('/api/v1/production/analytics', analyticsRoutes);
+
 
 app.get('/api/session', async (req, res, next) => {
   try {

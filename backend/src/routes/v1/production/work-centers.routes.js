@@ -1,7 +1,9 @@
 import { Router } from 'express';
 import { eq } from 'drizzle-orm';
-import { db } from '../../../db/index.js';
-import { workCenters } from '../../../db/postgres/index.js';
+import { db, schema } from '../../../db/index.js';
+import { insertAndFetch, updateAndFetch } from './data.js';
+
+const { workCenters } = schema;
 
 const router = Router();
 
@@ -26,9 +28,7 @@ router.post('/', async (req, res) => {
   try {
     const { code, name, factoryType, plantId, costPerHour, nominalSpeed, speedUnit, metadata } = req.body;
 
-    const [newCenter] = await db
-      .insert(workCenters)
-      .values({
+    const newCenter = await insertAndFetch(db, workCenters, {
         code,
         name,
         factoryType,
@@ -37,8 +37,7 @@ router.post('/', async (req, res) => {
         nominalSpeed: nominalSpeed || 0.0,
         speedUnit,
         metadata,
-      })
-      .returning();
+      });
 
     res.status(201).json({ status: 'success', data: newCenter });
   } catch (error) {
@@ -74,11 +73,7 @@ router.put('/:code', async (req, res) => {
     const { code } = req.params;
     const updateFields = req.body;
 
-    const [updated] = await db
-      .update(workCenters)
-      .set({ ...updateFields, updatedAt: new Date() })
-      .where(eq(workCenters.code, code))
-      .returning();
+    const updated = await updateAndFetch(db, workCenters, eq(workCenters.code, code), { ...updateFields, updatedAt: new Date() });
 
     if (!updated) {
       return res.status(404).json({ status: 'fail', message: 'Work center not found' });

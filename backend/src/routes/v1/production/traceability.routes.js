@@ -1,6 +1,8 @@
 import { Router } from 'express';
-import { db } from '../../../db/index.js';
-import { materialLotTraces } from '../../../db/postgres/index.js';
+import { db, schema } from '../../../db/index.js';
+import { insertAndFetch } from './data.js';
+
+const { materialLotTraces } = schema;
 
 const router = Router();
 
@@ -24,10 +26,7 @@ router.get('/lots', async (req, res) => {
 router.post('/lots', async (req, res) => {
   try {
     const { manufacturingOrderId, componentSku, lotNumber, quantityUsed, unitOfMeasure } = req.body;
-    const [newTrace] = await db
-      .insert(materialLotTraces)
-      .values({ manufacturingOrderId, componentSku, lotNumber, quantityUsed, unitOfMeasure })
-      .returning();
+    const newTrace = await insertAndFetch(db, materialLotTraces, { manufacturingOrderId, componentSku, lotNumber, quantityUsed, unitOfMeasure });
     res.status(201).json({ status: 'success', data: newTrace });
   } catch (error) {
     res.status(500).json({ error: error.message });

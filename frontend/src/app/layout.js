@@ -1,9 +1,11 @@
 import { Link, NavLink, Outlet, useLocation } from 'react-router-dom';
+import { authClient } from '../lib/auth-client';
 
 const navLinkClass = ({ isActive }) =>
   `rounded-full px-3 py-2 text-sm transition ${isActive ? 'text-forest' : 'text-ink/55 hover:text-forest'}`;
 
 export default function RootLayout() {
+  const { data: session, isPending } = authClient.useSession();
   const location = useLocation();
   const isAuthPage = location.pathname === '/go';
 
@@ -14,15 +16,19 @@ export default function RootLayout() {
           <span className="brand-mark"><span /></span>
           <span>northstar<span className="brand-dot">.</span></span>
         </Link>
-        {!isAuthPage && (
+        {session?.user && (
           <nav className="hidden items-center gap-2 sm:flex" aria-label="Main navigation">
             <NavLink to="/" className={navLinkClass} end>Overview</NavLink>
-            <a className="rounded-full px-3 py-2 text-sm text-ink/55 transition hover:text-forest" href="/#how-it-works">How it works</a>
+            <NavLink to="/dashboard" className={navLinkClass} end>Dashboard</NavLink>
+            <NavLink to="/production" className={navLinkClass}>Production</NavLink>
           </nav>
         )}
         <div className="flex items-center gap-3">
-          {isAuthPage ? (
-            <Link to="/" className="text-sm font-semibold text-ink/60 transition hover:text-forest">Back home</Link>
+          {session?.user ? (
+            <>
+              <Link to="/production" className="button button-dark button-small">Production <span aria-hidden="true">↗</span></Link>
+              <Link to="/" className="hidden text-sm font-semibold text-ink/60 transition hover:text-forest sm:block">Back home</Link>
+            </>
           ) : (
             <>
               <Link to="/go?mode=signin" className="hidden text-sm font-semibold text-ink/65 transition hover:text-forest sm:block">Sign in</Link>

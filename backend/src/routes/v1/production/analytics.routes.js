@@ -1,7 +1,8 @@
 import { Router } from 'express';
 import { eq, and, gte, lte } from 'drizzle-orm';
-import { db } from '../../../db/index.js';
-import { machinePerformanceSummaries, operatorPerformanceSummaries } from '../../../db/postgres/index.js';
+import { db, schema } from '../../../db/index.js';
+
+const { machinePerformanceSummaries, operatorPerformanceSummaries } = schema;
 
 const router = Router();
 

@@ -1,6 +1,8 @@
 import { Router } from 'express';
-import { db } from '../../../db/index.js';
-import { qualityInspections } from '../../../db/postgres/index.js';
+import { db, schema } from '../../../db/index.js';
+import { insertAndFetch } from './data.js';
+
+const { qualityInspections } = schema;
 
 const router = Router();
 
@@ -26,12 +28,10 @@ router.post('/inspections', async (req, res) => {
     const { manufacturingOrderId, inspectorId, inspectionType, measuredValue, targetValue, lowerLimit, upperLimit, sampleSize, notes } = req.body;
 
     let evaluation = 'Pass';
-    if (lowerLimit !== undefined && measuredValue < lowerLimit) evaluation = 'Fail';
-    if (upperLimit !== undefined && measuredValue > upperLimit) evaluation = 'Fail';
+    if (lowerLimit != null && measuredValue < lowerLimit) evaluation = 'Fail';
+    if (upperLimit != null && measuredValue > upperLimit) evaluation = 'Fail';
 
-    const [newInspection] = await db
-      .insert(qualityInspections)
-      .values({
+    const newInspection = await insertAndFetch(db, qualityInspections, {
         manufacturingOrderId,
         inspectorId,
         inspectionType,
@@ -42,8 +42,7 @@ router.post('/inspections', async (req, res) => {
         status: evaluation,
         sampleSize: sampleSize || 1,
         notes,
-      })
-      .returning();
+      });
 
     res.status(201).json({ status: 'success', data: newInspection });
   } catch (error) {

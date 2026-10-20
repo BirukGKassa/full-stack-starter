@@ -1,7 +1,9 @@
 import { Router } from 'express';
 import { eq, sql } from 'drizzle-orm';
-import { db } from '../../../db/index.js';
-import { manufacturingOrders, machineProductionLogs } from '../../../db/postgres/index.js';
+import { db, dbType, schema } from '../../../db/index.js';
+import { insertAndFetch, updateAndFetch } from './data.js';
+
+const { manufacturingOrders, machineProductionLogs } = schema;
 
 const router = Router();
 
@@ -26,9 +28,8 @@ router.post('/', async (req, res) => {
   try {
     const { orderNumber, bomId, productSku, targetQuantity, priority, batchNumber, dueDate, notes } = req.body;
 
-    const [newOrder] = await db
-      .insert(manufacturingOrders)
-      .values({
+    const newOrder = await insertAndFetch(db, manufacturingOrders, {
+        ...(dbType === 'mysql' ? { companyId: req.body.companyId || 'DEFAULT' } : {}),
         orderNumber,
         bomId,
         productSku,
@@ -37,8 +38,7 @@ router.post('/', async (req, res) => {
         batchNumber,
         dueDate: dueDate ? new Date(dueDate) : null,
         notes,
-      })
-      .returning();
+      });
 
     res.status(201).json({ status: 'success', data: newOrder });
   } catch (error) {
@@ -78,11 +78,7 @@ router.put('/:id/status', async (req, res) => {
     if (status === 'In Progress') updatePayload.startedAt = new Date();
     if (status === 'Completed') updatePayload.completedAt = new Date();
 
-    const [updatedOrder] = await db
-      .update(manufacturingOrders)
-      .set(updatePayload)
-      .where(eq(manufacturingOrders.id, id))
-      .returning();
+    const updatedOrder = await updateAndFetch(db, manufacturingOrders, eq(manufacturingOrders.id, id), updatePayload);
 
     if (!updatedOrder) {
       return res.status(404).json({ status: 'fail', message: 'Order not found' });

@@ -3,6 +3,7 @@ import RootLayout from './app/layout.js';
 import HomePage from './app/page.js';
 import GoPage from './app/go/page.js';
 import DashboardPage from './app/dashboard/page.js';
+import ProductionPage from './app/production/page.js';
 
 const router = createBrowserRouter([
   {
@@ -12,6 +13,7 @@ const router = createBrowserRouter([
       { index: true, element: <HomePage /> },
       { path: 'go', element: <GoPage /> },
       { path: 'dashboard', element: <DashboardPage /> },
+      { path: 'production', element: <ProductionPage /> },
     ],
   },
 ]);

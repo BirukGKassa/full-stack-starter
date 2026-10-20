@@ -1,7 +1,10 @@
 import { Router } from 'express';
+import { randomUUID } from 'node:crypto';
 import { eq } from 'drizzle-orm';
-import { db } from '../../../db/index.js';
-import { boms, bomLines } from '../../../db/postgres/index.js';
+import { db, schema } from '../../../db/index.js';
+import { insertAndFetch, updateAndFetch } from './data.js';
+
+const { boms, bomLines } = schema;
 
 const router = Router();
 
@@ -31,17 +34,18 @@ router.post('/', async (req, res) => {
 
     // 1. Insert master BOM and lines atomically using a transaction
     const newBom = await db.transaction(async (tx) => {
-      const [insertedBom] = await tx.insert(boms).values({
+      const insertedBom = await insertAndFetch(tx, boms, {
         productSku,
         productName,
         outputQty,
         outputUnit,
         standardRunMinutes,
         metadata,
-      }).returning();
+      });
 
       if (lines && lines.length > 0) {
         const formattedLines = lines.map((line) => ({
+          id: randomUUID(),
           bomId: insertedBom.id,
           componentSku: line.componentSku,
           componentName: line.componentName,
@@ -95,11 +99,7 @@ router.put('/:id', async (req, res) => {
     const updateData = req.body;
 
     // 1. Update record in database
-    const [updatedBom] = await db
-      .update(boms)
-      .set({ ...updateData, updatedAt: new Date() })
-      .where(eq(boms.id, id))
-      .returning();
+    const updatedBom = await updateAndFetch(db, boms, eq(boms.id, id), { ...updateData, updatedAt: new Date() });
 
     if (!updatedBom) {
       return res.status(404).json({ status: 'fail', message: 'BOM not found' });
@@ -121,11 +121,7 @@ router.delete('/:id', async (req, res) => {
     const { id } = req.params;
 
     // 1. Soft-delete by toggling isActive flag
-    const [deactivated] = await db
-      .update(boms)
-      .set({ isActive: false, updatedAt: new Date() })
-      .where(eq(boms.id, id))
-      .returning();
+    const deactivated = await updateAndFetch(db, boms, eq(boms.id, id), { isActive: false, updatedAt: new Date() });
 
     if (!deactivated) {
       return res.status(404).json({ status: 'fail', message: 'BOM not found' });

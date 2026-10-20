@@ -1,12 +1,10 @@
 import { Router } from 'express';
+import { randomUUID } from 'node:crypto';
 import { eq, sql } from 'drizzle-orm';
-import { db } from '../../../db/index.js';
-import { 
-  machineProductionLogs, 
-  manufacturingOrders, 
-  materialLotTraces, 
-  machineDowntimeLogs 
-} from '../../../db/postgres/index.js';
+import { db, dbType, schema } from '../../../db/index.js';
+import { insertAndFetch } from './data.js';
+
+const { machineProductionLogs, manufacturingOrders, materialLotTraces, machineDowntimeLogs } = schema;
 
 const router = Router();
 
@@ -49,9 +47,7 @@ router.post('/', async (req, res) => {
     // Execute all updates and inserts in a single atomic transaction
     const transactionResult = await db.transaction(async (tx) => {
       // 1. Insert machine production log (tied to work center and operator)
-      const [insertedLog] = await tx
-        .insert(machineProductionLogs)
-        .values({
+      const insertedLog = await insertAndFetch(tx, machineProductionLogs, {
           manufacturingOrderId,
           workCenterCode,
           operatorId,
@@ -63,8 +59,7 @@ router.post('/', async (req, res) => {
           outputUnit,
           scrapQuantity: scrapQuantity || 0.0,
           notes,
-        })
-        .returning();
+        });
 
       // 2. If the clerk reported machine downtime during this session, record it directly against the work center
       if (machineDowntime && machineDowntime.downtimeReasonId) {
@@ -73,6 +68,7 @@ router.post('/', async (req, res) => {
         const stoppageEnd = new Date(stoppageStart.getTime() + downtimeMinutes * 60000);
 
         await tx.insert(machineDowntimeLogs).values({
+          ...(dbType === 'mysql' ? { id: randomUUID(), companyId: req.body.companyId || 'DEFAULT' } : {}),
           workCenterCode,
           downtimeReasonId: machineDowntime.downtimeReasonId,
           startTime: stoppageStart,
@@ -87,6 +83,7 @@ router.post('/', async (req, res) => {
       // 3. Record raw material lot consumption if provided
       if (materialLotUsed && materialLotUsed.lotNumber) {
         await tx.insert(materialLotTraces).values({
+          id: randomUUID(),
           manufacturingOrderId,
           componentSku: materialLotUsed.componentSku,
           lotNumber: materialLotUsed.lotNumber,

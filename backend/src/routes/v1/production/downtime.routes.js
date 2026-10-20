@@ -1,7 +1,9 @@
 import { Router } from 'express';
 import { eq } from 'drizzle-orm';
-import { db } from '../../../db/index.js';
-import { downtimeReasons, machineDowntimeLogs } from '../../../db/postgres/index.js';
+import { db, dbType, schema } from '../../../db/index.js';
+import { insertAndFetch, updateAndFetch } from './data.js';
+
+const { downtimeReasons, machineDowntimeLogs } = schema;
 
 const router = Router();
 
@@ -25,10 +27,7 @@ router.get('/reasons', async (req, res) => {
 router.post('/reasons', async (req, res) => {
   try {
     const { category, reasonCode, description, requiresTechnician } = req.body;
-    const [newReason] = await db
-      .insert(downtimeReasons)
-      .values({ category, reasonCode, description, requiresTechnician: requiresTechnician || false })
-      .returning();
+    const newReason = await insertAndFetch(db, downtimeReasons, { category, reasonCode, description, requiresTechnician: requiresTechnician || false });
     res.status(201).json({ status: 'success', data: newReason });
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -54,11 +53,17 @@ router.get('/logs', async (req, res) => {
  */
 router.post('/logs', async (req, res) => {
   try {
-    const { workCenterCode, downtimeReasonId, startTime, technicianId, notes } = req.body;
-    const [newLog] = await db
-      .insert(machineDowntimeLogs)
-      .values({ workCenterCode, downtimeReasonId, startTime: new Date(startTime), technicianId, notes })
-      .returning();
+    const { companyId, workCenterCode, downtimeReasonId, startTime, endTime, durationMinutes, technicianId, notes } = req.body;
+    const newLog = await insertAndFetch(db, machineDowntimeLogs, {
+      ...(dbType === 'mysql' ? { companyId: companyId || 'DEFAULT' } : {}),
+      workCenterCode,
+      downtimeReasonId,
+      startTime: new Date(startTime),
+      endTime: endTime ? new Date(endTime) : null,
+      durationMinutes: durationMinutes ? Number(durationMinutes) : null,
+      technicianId: technicianId || null,
+      notes: notes || null,
+    });
     res.status(201).json({ status: 'success', data: newLog });
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -83,11 +88,12 @@ router.put('/logs/:id/resolve', async (req, res) => {
     const end = new Date(endTime).getTime();
     const durationMinutes = Math.round((end - start) / (1000 * 60));
 
-    const [resolved] = await db
-      .update(machineDowntimeLogs)
-      .set({ endTime: new Date(endTime), durationMinutes, isVerified: true, notes: notes || existingLog.notes })
-      .where(eq(machineDowntimeLogs.id, id))
-      .returning();
+    const resolved = await updateAndFetch(db, machineDowntimeLogs, eq(machineDowntimeLogs.id, id), {
+      endTime: new Date(endTime),
+      durationMinutes,
+      isVerified: true,
+      notes: notes || existingLog.notes,
+    });
 
     res.status(200).json({ status: 'success', data: resolved });
   } catch (error) {

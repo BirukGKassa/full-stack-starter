@@ -1,7 +1,9 @@
 import { Router } from 'express';
 import { eq, sql } from 'drizzle-orm';
-import { db } from '../../../db/index.js';
-import { factoryTools } from '../../../db/postgres/index.js';
+import { db, schema } from '../../../db/index.js';
+import { insertAndFetch, updateAndFetch } from './data.js';
+
+const { factoryTools } = schema;
 
 const router = Router();
 
@@ -25,10 +27,7 @@ router.get('/', async (req, res) => {
 router.post('/', async (req, res) => {
   try {
     const { code, name, toolType, maxCycles, assignedWorkCenterCode } = req.body;
-    const [newTool] = await db
-      .insert(factoryTools)
-      .values({ code, name, toolType, maxCycles, assignedWorkCenterCode })
-      .returning();
+    const newTool = await insertAndFetch(db, factoryTools, { code, name, toolType, maxCycles, assignedWorkCenterCode });
     res.status(201).json({ status: 'success', data: newTool });
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -44,14 +43,10 @@ router.put('/:code/increment-cycles', async (req, res) => {
     const { code } = req.params;
     const { cyclesToAdd } = req.body;
 
-    const [updatedTool] = await db
-      .update(factoryTools)
-      .set({
+    const updatedTool = await updateAndFetch(db, factoryTools, eq(factoryTools.code, code), {
         currentCycles: sql`${factoryTools.currentCycles} + ${cyclesToAdd}`,
         updatedAt: new Date(),
-      })
-      .where(eq(factoryTools.code, code))
-      .returning();
+      });
 
     if (!updatedTool) {
       return res.status(404).json({ status: 'fail', message: 'Tool not found' });
@@ -70,11 +65,11 @@ router.put('/:code/increment-cycles', async (req, res) => {
 router.put('/:code/maintenance', async (req, res) => {
   try {
     const { code } = req.params;
-    const [servicedTool] = await db
-      .update(factoryTools)
-      .set({ status: 'Active', lastMaintenanceDate: new Date(), updatedAt: new Date() })
-      .where(eq(factoryTools.code, code))
-      .returning();
+    const servicedTool = await updateAndFetch(db, factoryTools, eq(factoryTools.code, code), {
+      status: 'Active',
+      lastMaintenanceDate: new Date(),
+      updatedAt: new Date(),
+    });
 
     if (!servicedTool) {
       return res.status(404).json({ status: 'fail', message: 'Tool not found' });
