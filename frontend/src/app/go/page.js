@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link, Navigate, useNavigate, useSearchParams } from 'react-router-dom';
 import { authClient } from '../../lib/auth-client.js';
+import Brand from '../components/brand.js';
 
 async function submitJson(url, body) {
   const response = await fetch(url, {
@@ -66,12 +67,12 @@ export default function GoPage() {
   return (
     <section className="auth-shell">
       <div className="auth-aside">
-        <Link to="/" className="brand brand-light"><span className="brand-mark"><span /></span><span>LYU<span className="brand-dot"> ERP</span></span></Link>
+        <Brand className="brand-light" />
         <div className="auth-aside-copy"><span className="auth-sun">✳</span><p className="eyebrow eyebrow-light">ONE CONNECTED BUSINESS SYSTEM</p><h1>Every team<br />works with<br /><em>clarity.</em></h1><p>Secure access to your Lyu ERP workspace.</p></div>
         <span className="auth-aside-footer">LYU ERP OPERATIONS <span>↗</span></span>
       </div>
       <div className="auth-main"><div className="auth-form-wrap">
-        <div className="auth-mobile-brand"><Link to="/" className="brand"><span className="brand-mark"><span /></span><span>LYU<span className="brand-dot"> ERP</span></span></Link></div>
+        <div className="auth-mobile-brand"><Brand /></div>
         <p className="eyebrow"><span className="eyebrow-line" /> LYU ERP OPERATIONS</p>
         <h2>{isInitialSetup ? 'Initial administrator' : 'Welcome back to'}<br /><span>{isInitialSetup ? 'secure setup.' : 'your workspace.'}</span></h2>
         <p className="auth-intro">{isInitialSetup ? 'Create the first administrator account. The email must be listed in LYU_ADMIN_EMAILS.' : 'Sign in with your email, username, or employee ID.'}</p>

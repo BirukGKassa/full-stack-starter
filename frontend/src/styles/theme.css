@@ -1,11 +1,15 @@
-.theme-toggle { min-height: 32px; display: inline-flex; align-items: center; gap: 7px; padding: 0 10px; border: 1px solid #e2e8df; border-radius: 999px; background: #fffefa; color: #536658; font-size: 10px; font-weight: 700; cursor: pointer; }
-.theme-toggle:hover { border-color: #a9bda4; color: #254c35; }
+.theme-fab { position: fixed; z-index: 100; right: 22px; bottom: 22px; width: 54px; height: 54px; display: grid; place-items: center; border: 1px solid #dce5d8; border-radius: 50%; background: #fffefa; color: #254c35; box-shadow: 0 8px 24px #10251a2b; font-size: 23px; cursor: pointer; transition: transform .2s, box-shadow .2s; }
+.theme-fab:hover { transform: translateY(-2px); box-shadow: 0 0 28px 12px #10251a38; }
 html[data-theme="dark"] { color-scheme: dark; background: #111a16; color: #e4ebe5; }
 html[data-theme="dark"] body { background: #111a16; color: #e4ebe5; }
+html[data-theme="dark"] .brand { color: #e1ebe2; }
+html[data-theme="dark"] .brand-logo-on-light { display: none; }
+html[data-theme="dark"] .brand-logo-on-dark { display: block; }
+html[data-theme="dark"] .brand-light { color: #f4f7f0; }
+html[data-theme="dark"] .theme-fab { border-color: #35463b; background: #202d25; color: #d5e1d6; }
 html[data-theme="dark"] .site-header, html[data-theme="dark"] .site-footer { color: #b6c2b9; }
 html[data-theme="dark"] .site-header { background: #141e19; }
 html[data-theme="dark"] .site-header nav a, html[data-theme="dark"] .site-header > div > a:not(.button) { color: #bbc7be; }
-html[data-theme="dark"] .theme-toggle { border-color: #35463b; background: #202d25; color: #d5e1d6; }
 html[data-theme="dark"] .hero-wrap, html[data-theme="dark"] .principles-section { background: #111a16; color: #e3eae4; }
 html[data-theme="dark"] .hero-copy h1, html[data-theme="dark"] .section-heading h2, html[data-theme="dark"] .principle-card h3 { color: #e5eee5; }
 html[data-theme="dark"] .hero-description, html[data-theme="dark"] .section-heading > p:last-child, html[data-theme="dark"] .principle-card p { color: #a1b0a5; }

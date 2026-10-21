@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+import Brand, { BrandIcon } from './components/brand.js';
 
 const modules = [
   ['Operations', 'Production, planning, and manufacturing orders', '◫'],
@@ -42,6 +43,7 @@ export default function HomePage() {
     <div className="lyu-landing lyu-erp-home">
       <section className="lyu-home-hero">
         <div>
+          <Brand className="lyu-home-brand" />
           <p className="eyebrow"><span className="eyebrow-line" /> ONE CONNECTED BUSINESS SYSTEM</p>
           <h1>Run your whole<br />business with <em>clarity.</em></h1>
           <p className="lyu-hero-description">Lyu ERP connects the people, processes, and information behind your business—from finance and people operations to inventory, customer orders, and manufacturing.</p>
@@ -52,7 +54,7 @@ export default function HomePage() {
           <div className="lyu-company-caption"><span className="lyu-pulse" /> {companyName}</div>
         </div>
         <div className="lyu-erp-home-panel">
-          <span className="lyu-preview-mark">L.</span>
+          <BrandIcon className="lyu-preview-mark" />
           <p>LYU ERP WORKSPACE</p>
           <h2>One source of truth.<br /><em>Every team in sync.</em></h2>
           <div className="lyu-home-panel-lines"><span /><span /><span /><span /></div>
@@ -94,7 +96,7 @@ export default function HomePage() {
       <section className="lyu-cta lyu-erp-cta">
         <div><p className="eyebrow"><span className="eyebrow-line" /> LYU ERP · BUSINESS OPERATIONS</p><h2>Bring your teams<br /><em>together.</em></h2></div>
         <Link to="/go" className="button button-light">Sign in to your workspace <span aria-hidden="true">↗</span></Link>
-        <span className="lyu-cta-mark">L.</span>
+        <BrandIcon className="lyu-cta-mark lyu-logo-contrast" />
       </section>
     </div>
   );

@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link, Navigate } from 'react-router-dom';
 import { authClient } from '../../../lib/auth-client.js';
 import { systemApi } from '../../../lib/system-api.js';
+import Brand from '../../components/brand.js';
 import { Input } from '../../production/components/ui.js';
 
 const companyFields = [
@@ -158,7 +159,7 @@ export default function SystemAdminPage() {
   return (
     <main className="erp-dashboard erp-system-page">
       <div className="erp-dashboard-top">
-        <div><p className="prod-eyebrow">LYU ERP · ADMIN CONSOLE</p><p>Company, license, and system operations</p></div>
+        <div><Brand /><p className="prod-eyebrow">LYU ERP · ADMIN CONSOLE</p><p>Company, license, and system operations</p></div>
         <div><Link className="prod-button prod-button-outline" to="/dashboard">← Dashboard</Link><Link className="prod-button prod-button-outline" to="/dashboard/settings">User access</Link></div>
       </div>
       <div className="prod-page-heading">
@@ -181,7 +182,7 @@ export default function SystemAdminPage() {
             {loading ? 'Checking…' : license?.canAddLicense ? 'Register / renew license' : `Available with ${license?.renewalWindowDays || 10} days remaining`}
           </button>
         </form>
-        <p className="lyu-license-help">License activation requires an exact match with the server-only <code>LICENCE_KEY</code>. A mismatch is stored as pending and can be retried with Refresh. Renewal during the 10-day window starts after the current term, adding 365 days to its expiration.</p>
+        <p className="lyu-license-help">License activation requires an exact match with the server-only <code>LICENCE_KEY</code>. A mismatch is stored as pending and can be retried with Refresh. Renewal during the 10-day window starts after the current term, adding {license?.durationDays || 365} days to its expiration.</p>
         {licenseData?.licenses?.length > 0 && <div className="prod-table-wrap"><table className="prod-table"><thead><tr><th>Key suffix</th><th>Status</th><th>Activated</th><th>Expires</th><th>Added</th></tr></thead><tbody>{licenseData.licenses.map((item) => <tr key={item.id}><td>•••• {item.keyLastFour}</td><td><span className={`prod-user-status ${item.status === 'active' ? 'prod-user-status-active' : 'prod-user-status-inactive'}`}>{item.status}</span></td><td>{dateTime(item.activatedAt)}</td><td>{dateTime(item.expiresAt)}</td><td>{dateTime(item.createdAt)}</td></tr>)}</tbody></table></div>}
       </section>
 

@@ -100,7 +100,9 @@ export default function SecurityPage() {
       <div className="prod-page-heading"><p className="prod-eyebrow">YOUR ACCOUNT</p><h1>Password and sessions</h1><p>Update your password and sign out sessions you do not recognize.</p></div>
       {error && <section className="prod-card prod-api-warning" role="alert"><strong>Action could not be completed</strong><p>{error}</p></section>}
       {message && <section className="prod-card prod-security-success" role="status">{message}</section>}
-      <section className="prod-card">
+      <div className="flex w-full gap-4">
+        
+      <section className="prod-card flex-1">
         <div className="prod-card-heading"><div><h2>Change password</h2><p>Changing your password will revoke other signed-in sessions.</p></div></div>
         <form className="prod-form-grid" onSubmit={changePassword}>
           <Input label="Current password" name="currentPassword" type="password" autoComplete="current-password" />
@@ -109,7 +111,7 @@ export default function SecurityPage() {
           <button className="prod-button prod-button-primary prod-field-wide" disabled={saving}>{saving ? 'Updating…' : 'Change password'}</button>
         </form>
       </section>
-      <section className="prod-card">
+      <section className="prod-card flex-1">
         <div className="prod-card-heading"><div><h2>Your active sessions</h2><p>Sign out a session on another browser or device. Your current device is marked.</p></div><button className="prod-text-button" onClick={reload}>Refresh ↻</button></div>
         {loading ? <div className="prod-loading">Loading sessions…</div> : !sessions.length ? <div className="prod-empty"><strong>No active sessions</strong></div> : sessions.map((item) => (
           <article className="prod-session-row" key={item.id}>
@@ -118,6 +120,7 @@ export default function SecurityPage() {
           </article>
         ))}
       </section>
+      </div>
     </main>
   );
 }

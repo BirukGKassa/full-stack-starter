@@ -171,7 +171,6 @@
 .prod-no-access h1 { margin: 17px 0 4px; color: #1d3d2b; font: 700 28px 'Manrope', sans-serif; }
 .prod-no-access p { color: #839087; font-size: 12px; }
 .prod-no-access a { margin-top: 12px; color: #557d55; font-size: 11px; font-weight: 700; }
-.prod-theme-toggle { padding: 0 9px; min-height: 29px; font-size: 9px; }
 .prod-audit-meta { display: grid; gap: 3px; white-space: normal; }
 .prod-audit-meta strong { color: #66786b; font-size: 9px; }
 .prod-audit-meta small { color: #98a39a; font-size: 8px; }
@@ -207,7 +206,7 @@ html[data-theme="dark"] .prod-workstation input { border-color: #35473a; backgro
 .lyu-hero-status .lyu-pulse { width: 6px; height: 6px; }
 .lyu-preview { z-index: 1; width: min(470px, 100%); padding: 20px; border: 1px solid #e4eae1; border-radius: 12px; background: #fffefa; box-shadow: 0 28px 70px #173a2a16; transform: rotate(-1.2deg); }
 .lyu-preview-top { display: flex; align-items: center; justify-content: space-between; color: #94a096; font: 8px 'DM Mono', monospace; letter-spacing: .6px; }
-.lyu-preview-mark { color: #1d4a31; font: 800 17px 'Manrope', sans-serif; letter-spacing: -1px; }
+.lyu-preview-mark.brand-logo-icon { width: 26px; height: 26px; }
 .lyu-preview-heading { display: flex; align-items: start; justify-content: space-between; margin: 25px 0 18px; }
 .lyu-preview-heading small, .lyu-preview-metrics small, .lyu-preview-chart-title { color: #9aa59a; font: 8px 'DM Mono', monospace; letter-spacing: .5px; }
 .lyu-preview-heading h2 { margin: 7px 0 0; color: #274532; font: 700 20px 'Manrope', sans-serif; letter-spacing: -.5px; }
@@ -253,7 +252,7 @@ html[data-theme="dark"] .prod-workstation input { border-color: #35473a; backgro
 .lyu-cta .eyebrow { color: #aec0ad; }
 .lyu-cta h2 { margin-bottom: 0; color: white; }
 .lyu-cta h2 em { color: #c8e2ac; }
-.lyu-cta-mark { position: absolute; right: 34%; bottom: -75px; color: #ffffff0b; font: 800 250px 'Manrope', sans-serif; letter-spacing: -25px; }
+.lyu-cta-mark.brand-logo-icon { position: absolute; right: 34%; bottom: -75px; width: 250px; height: 250px; opacity: .04; }
 .lyu-cta .button { z-index: 1; }
 .erp-dashboard { width: 100%; min-height: 100vh; margin: 0; padding: 28px clamp(18px, 3vw, 48px) 30px; }
 .erp-dashboard-top { display: flex; align-items: center; justify-content: space-between; gap: 18px; padding-bottom: 16px; border-bottom: 1px solid #e7ebe4; }

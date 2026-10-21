@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { Link, Navigate } from 'react-router-dom';
 import { authClient } from '../../../lib/auth-client.js';
 import { productionApi } from '../../../lib/production-api.js';
+import Brand from '../../components/brand.js';
 import { Input } from '../../production/components/ui.js';
 
 export default function AdminSettings() {
@@ -157,7 +158,7 @@ export default function AdminSettings() {
   return (
     <main className="erp-dashboard erp-settings-page">
       <div className="erp-dashboard-top">
-        <div><p className="prod-eyebrow">LYU ERP · ADMINISTRATION</p><p>System access and accounts</p></div>
+        <div><Brand /><p className="prod-eyebrow">LYU ERP · ADMINISTRATION</p><p>System access and accounts</p></div>
         <Link className="prod-button prod-button-outline" to="/dashboard">← Dashboard</Link>
       </div>
       <div className="prod-admin-settings">

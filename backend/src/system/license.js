@@ -3,7 +3,14 @@ import { desc, eq } from 'drizzle-orm';
 import { db, schema } from '../db/index.js';
 
 const { systemLicenses } = schema;
-const licenseDurationMs = 365 * 24 * 60 * 60 * 1000;
+export const licenseDurationDays = process.env.LICENSE_DURATION_DAYS === undefined
+  || process.env.LICENSE_DURATION_DAYS.trim() === ''
+  ? 365
+  : Number(process.env.LICENSE_DURATION_DAYS);
+if (!Number.isSafeInteger(licenseDurationDays) || licenseDurationDays < 1 || licenseDurationDays > 100_000_000) {
+  throw new Error('LICENSE_DURATION_DAYS must be a positive whole number no greater than 100000000.');
+}
+const licenseDurationMs = licenseDurationDays * 24 * 60 * 60 * 1000;
 const renewalWindowDays = 10;
 let cachedStatus;
 let cachedAt = 0;
@@ -41,6 +48,7 @@ function summarize(license, pending, now) {
     expiresAt: license?.expiresAt || null,
     canAddLicense: !isActive || daysRemaining <= renewalWindowDays,
     renewalWindowDays,
+    durationDays: licenseDurationDays,
     current: license ? { id: license.id, status: license.status, startsAt: license.startsAt, expiresAt: license.expiresAt, keyLastFour: license.keyLastFour } : null,
     pending: nextLicense,
     configuredKeyPresent: Boolean(String(process.env.LICENCE_KEY || '').trim()),

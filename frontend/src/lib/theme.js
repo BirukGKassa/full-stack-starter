@@ -22,12 +22,6 @@ export function ThemeProvider({ children }) {
     }
   }, [theme]);
 
-  useEffect(() => {
-    const toggle = () => setTheme((current) => current === 'light' ? 'dark' : 'light');
-    window.addEventListener('lyu-toggle-theme', toggle);
-    return () => window.removeEventListener('lyu-toggle-theme', toggle);
-  }, []);
-
   const value = useMemo(() => ({
     theme,
     toggleTheme: () => setTheme((current) => current === 'light' ? 'dark' : 'light'),

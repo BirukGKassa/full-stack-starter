@@ -26,8 +26,8 @@ export const systemLicenses = mysqlTable('system_licenses', {
   keyLastFour: varchar('key_last_four', { length: 4 }).notNull(),
   status: varchar('status', { length: 20 }).notNull(),
   startsAt: timestamp('starts_at'),
-  expiresAt: timestamp('expires_at'),
-  activatedAt: timestamp('activated_at'),
+  expiresAt: timestamp('expires_at').defaultNow().notNull(),
+  activatedAt: timestamp('activated_at').defaultNow().notNull(),
   createdBy: varchar('created_by', { length: 255 }).notNull().references(() => user.id, { onDelete: 'restrict' }),
   createdAt: timestamp('created_at').defaultNow().notNull(),
 }, (table) => [

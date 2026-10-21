@@ -63,11 +63,15 @@ const server = createServer(async (request, response) => {
     ? resolve(outputDir, 'app.js')
     : pathname === '/styles.css'
       ? resolve(outputDir, 'styles.css')
+      : /^\/assets\/[A-Za-z0-9._-]+$/.test(pathname)
+        ? resolve(frontendDir, `.${pathname}`)
       : indexPath;
   const contentType = pathname === '/app.js'
     ? 'text/javascript; charset=utf-8'
     : pathname === '/styles.css'
       ? 'text/css; charset=utf-8'
+      : pathname.endsWith('.svg')
+        ? 'image/svg+xml'
       : 'text/html; charset=utf-8';
 
   try {

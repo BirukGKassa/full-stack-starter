@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link, Navigate } from 'react-router-dom';
 import { authClient } from '../../lib/auth-client.js';
 import { loadProductionData, productionApi } from '../../lib/production-api.js';
-import { useTheme } from '../../lib/theme.js';
+import Brand from '../components/brand.js';
 import { AuditContext, DataTable, EntryCard, Input, MetricCard, Select, Textarea } from './components/ui.js';
 import DowntimeView from './views/downtime.js';
 import ProductionEntryView from './views/production-entry.js';
@@ -88,7 +88,6 @@ function reportCsv(rows, periodType) {
 
 export default function ProductionPage() {
   const { data: session, isPending } = authClient.useSession();
-  const { theme, toggleTheme } = useTheme();
   const [activeView, setActiveView] = useState('overview');
   const [selectedCompany, setSelectedCompany] = useState('AMH');
   const [resources, setResources] = useState({});
@@ -316,7 +315,7 @@ export default function ProductionPage() {
   if (isPending) return <div className="page-loading">Loading production workspace<span>✳</span></div>;
   if (!session?.user) return <Navigate to="/go?mode=signin" replace />;
   if (!loading && access?.modules?.length === 0) {
-    return <main className="prod-no-access"><span>LYU ERP</span><h1>No production modules assigned</h1><p>Ask your administrator to assign the modules you need.</p><Link to="/dashboard">Return to dashboard</Link></main>;
+    return <main className="prod-no-access"><Brand /><h1>No production modules assigned</h1><p>Ask your administrator to assign the modules you need.</p><Link to="/dashboard">Return to dashboard</Link></main>;
   }
 
   const currentNav = navigation.find((item) => item.id === activeView);
@@ -606,14 +605,14 @@ export default function ProductionPage() {
     <AuditContext.Provider value={auditEntries}>
     <div className="prod-shell">
       <aside className="prod-sidebar">
-        <Link to="/" className="brand prod-brand"><span className="brand-mark"><span /></span><span>LYU<span className="brand-dot"> ERP</span></span></Link>
+        <Brand className="prod-brand" />
         {['WORKSPACE', 'DATA ENTRY', 'OPERATIONS', 'INSIGHTS'].map((group) => <div className="prod-nav-group" key={group}>
           <p>{group}</p>{navigation.filter((item) => item.group === group && (isAdmin || access?.modules?.includes(item.id))).map((item) => <button key={item.id} onClick={() => setActiveView(item.id)} className={`prod-nav-link ${activeView === item.id ? 'prod-nav-link-active' : ''}`}><span>{item.icon}</span>{item.label}{item.id === 'downtime' && activeDowntime.length > 0 && <i>{activeDowntime.length}</i>}</button>)}
         </div>)}
         <div className="prod-sidebar-bottom"><div className="prod-user"><span>{session.user.name?.[0]?.toUpperCase() || 'U'}</span><div><strong>{session.user.name}</strong><small>Production workspace</small></div></div><Link to="/dashboard" className="prod-back-link">← Personal dashboard</Link></div>
       </aside>
       <main className="prod-main">
-        <header className="prod-topbar"><div><span className="prod-topbar-mobile">{currentNav?.label || 'System settings'}</span><span className="prod-breadcrumb">Lyu ERP <i>/</i> Production <i>/</i> <strong>{currentNav?.label || 'System settings'}</strong></span></div><div className="prod-topbar-right"><label className="prod-workstation-control" title="A label saved in this browser; the browser cannot read your PC hostname."><span>Workstation label</span><input aria-label="Workstation label" value={workstation} onChange={(event) => updateWorkstation(event.target.value)} placeholder="Name this workstation" /></label><span className="prod-live"><i /> Operations online</span><button className="theme-toggle prod-theme-toggle" type="button" onClick={toggleTheme}>{theme === 'light' ? '☾ Dark' : '☀ Light'}</button><button className="prod-icon-button" aria-label="Refresh production data" onClick={() => refresh()} disabled={refreshing}>{refreshing ? '…' : '↻'}</button><span className="prod-user-initial">{session.user.name?.[0]?.toUpperCase() || 'U'}</span></div></header>
+        <header className="prod-topbar"><div><span className="prod-topbar-mobile">{currentNav?.label || 'System settings'}</span><span className="prod-breadcrumb">Lyu ERP <i>/</i> Production <i>/</i> <strong>{currentNav?.label || 'System settings'}</strong></span></div><div className="prod-topbar-right"><label className="prod-workstation-control" title="A label saved in this browser; the browser cannot read your PC hostname."><span>Workstation label</span><input aria-label="Workstation label" value={workstation} onChange={(event) => updateWorkstation(event.target.value)} placeholder="Name this workstation" /></label><span className="prod-live"><i /> Operations online</span><button className="prod-icon-button" aria-label="Refresh production data" onClick={() => refresh()} disabled={refreshing}>{refreshing ? '…' : '↻'}</button><span className="prod-user-initial">{session.user.name?.[0]?.toUpperCase() || 'U'}</span></div></header>
         {loading ? <div className="prod-loading"><span className="prod-loader" />Loading factory data…</div> : <div className="prod-view">
           <div className="prod-view-heading"><div><span className="prod-factory-chip">{code || 'ALL'} FACTORY</span><span className="prod-today-date">{new Date().toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })}</span></div><button className="prod-button prod-button-outline" onClick={() => refresh()} disabled={refreshing}>{refreshing ? 'Refreshing…' : '↻ Refresh data'}</button></div>
             {apiErrors.length > 0 && <section className="prod-card prod-api-warning prod-global-warning"><strong>Some production services could not be reached.</strong><p>{apiErrors.map(([key, value]) => `${resourceErrors[key]}: ${value.error}`).join(' · ')}</p><button className="prod-text-button" onClick={() => refresh()}>Retry failed data ↻</button></section>}

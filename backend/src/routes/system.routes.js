@@ -4,6 +4,7 @@ import { and, desc, eq, gt, inArray } from 'drizzle-orm';
 import { auth } from '../auth.js';
 import { db, dbType, pool, schema } from '../db/index.js';
 import { createLicense, getLicenseStatus } from '../system/license.js';
+import { getAdminSetupLink } from '../system/admin-setup.js';
 
 const router = Router();
 const adminEmails = new Set((process.env.LYU_ADMIN_EMAILS || '')
@@ -95,13 +96,7 @@ router.get('/api/public/system', async (req, res, next) => {
       : [];
     let adminSetupLink = null;
     if (configuredAdmins.length && !existingAdmins.length && process.env.REGISTER_ADMIN_LINK) {
-      adminSetupLink = process.env.REGISTER_ADMIN_LINK;
-      try {
-        const setupUrl = new URL(adminSetupLink, process.env.BETTER_AUTH_URL || 'http://localhost:3005');
-        adminSetupLink = setupUrl.href;
-      } catch {
-        adminSetupLink = null;
-      }
+      adminSetupLink = getAdminSetupLink();
     }
     res.json({
       company,
@@ -113,6 +108,7 @@ router.get('/api/public/system', async (req, res, next) => {
         isActive: license.isActive,
         daysRemaining: license.daysRemaining,
         expiresAt: license.expiresAt,
+        durationDays: license.durationDays,
       },
     });
   } catch (error) {

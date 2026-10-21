@@ -8,6 +8,7 @@ import { db, pool, schema } from './db/index.js';
 import { eq, or } from 'drizzle-orm';
 import systemRoutes, { recordSystemEvent } from './routes/system.routes.js';
 import { startLicenseRefreshTimer } from './system/license.js';
+import { configuredAdminSetupToken } from './system/admin-setup.js';
 
 
 import newsRoutes from "./routes/newsRoutes.js";
@@ -29,17 +30,6 @@ const PORT = Number(process.env.PORT || 3005);
 const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
 const adminEmails = new Set((process.env.LYU_ADMIN_EMAILS || '')
   .split(',').map((email) => email.trim().toLowerCase()).filter(Boolean));
-
-function configuredAdminSetupToken() {
-  const setupLink = String(process.env.REGISTER_ADMIN_LINK || '').trim();
-  if (!setupLink) return '';
-  try {
-    const url = new URL(setupLink, process.env.BETTER_AUTH_URL || `http://localhost:${PORT}`);
-    return url.searchParams.get('setup') || url.searchParams.get('token') || '';
-  } catch {
-    return setupLink;
-  }
-}
 
 function secureTokenMatch(candidate, configured) {
   if (!candidate || !configured) return false;

@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { Link, Navigate, useNavigate } from 'react-router-dom';
 import { authClient } from '../../lib/auth-client.js';
 import { productionApi } from '../../lib/production-api.js';
-import { useTheme } from '../../lib/theme.js';
+import Brand from '../components/brand.js';
 
 const modules = [
   { key: 'production', title: 'Production', detail: 'Manufacturing operations, plans, and shifts', icon: '◫', fallback: ['downtime', 'products', 'orders', 'machines', 'overview'] },
@@ -18,7 +18,6 @@ const modules = [
 
 export default function DashboardPage() {
   const { data: session, isPending } = authClient.useSession();
-  const { theme, toggleTheme } = useTheme();
   const [signingOut, setSigningOut] = useState(false);
   const [access, setAccess] = useState(null);
   const [system, setSystem] = useState(null);
@@ -64,12 +63,12 @@ export default function DashboardPage() {
     <main className="erp-dashboard">
       <div className="erp-dashboard-top">
         <div className="erp-dashboard-heading">
+          <Brand />
           <p className="prod-eyebrow">LYU ERP · BUSINESS OPERATIONS</p>
           <p>{system?.company?.companyName || 'Company workspace'} · {today}</p>
         </div>
         <div className="erp-dashboard-actions">
           {(access?.user?.isAdmin || system?.isAdmin) && <><Link to="/dashboard/settings" className="prod-button prod-button-outline">User access</Link><Link to="/dashboard/system" className="prod-button prod-button-outline">System console</Link></>}
-          <button className="theme-toggle" onClick={toggleTheme}>{theme === 'light' ? '☾ Dark mode' : '☀ Light mode'}</button>
           <details className="erp-account-menu">
             <summary aria-label="Open account menu"><span className="erp-account-avatar">{session.user.name?.trim().charAt(0).toUpperCase() || 'U'}</span><span>{session.user.name}</span><b aria-hidden="true">⌄</b></summary>
             <div className="erp-account-popover">
