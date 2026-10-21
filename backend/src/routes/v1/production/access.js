@@ -2,6 +2,8 @@ import { randomUUID } from 'node:crypto';
 import { eq } from 'drizzle-orm';
 import { auth } from '../../../auth.js';
 import { db, schema } from '../../../db/index.js';
+import { getLicenseStatus } from '../../../system/license.js';
+import { availableModules } from './modules.js';
 
 const { moduleAssignments, productionAuditLogs, user } = schema;
 
@@ -73,6 +75,11 @@ export async function productionAccess(req, res, next) {
     const isAccessCheck = first === 'access';
     const isSettings = first === 'settings';
     const isAudit = first === 'audit';
+    const license = await getLicenseStatus();
+    const isLicenseManagement = first === 'settings' && pathParts(req)[1] === 'licenses';
+    if (!license.isActive && !isAccessCheck && !(isAdmin && isLicenseManagement)) {
+      return res.status(402).json({ status: 'fail', code: 'LICENSE_REQUIRED', message: 'An active Lyu ERP license is required to access this area.' });
+    }
     let assignedModules = [];
 
     if (!isAdmin) {
@@ -89,7 +96,8 @@ export async function productionAccess(req, res, next) {
         req.productionAuditScope = session.user.id;
       } else if (!isAccessCheck && !isAudit) {
         const moduleKey = routeModules[first];
-        const authorizedModules = req.method === 'GET' ? (readModules[first] || [moduleKey]) : [moduleKey];
+        const authorizedModules = [...(req.method === 'GET' ? (readModules[first] || [moduleKey]) : [moduleKey])];
+        if (moduleKey && moduleKey !== 'reports') authorizedModules.push('production');
         if (!moduleKey || !authorizedModules.some((module) => assignedModules.includes(module))) {
           return res.status(403).json({ status: 'fail', message: 'This production module has not been assigned to your account.' });
         }
@@ -102,7 +110,8 @@ export async function productionAccess(req, res, next) {
       email: session.user.email,
       username: session.user.username || null,
       isAdmin,
-      modules: isAdmin ? Object.values(routeModules).filter((module, index, all) => all.indexOf(module) === index) : assignedModules,
+      modules: isAdmin ? availableModules.map(({ key }) => key) : assignedModules,
+      license,
     };
 
     if (isAccessCheck || isAudit || first === 'settings') return next();

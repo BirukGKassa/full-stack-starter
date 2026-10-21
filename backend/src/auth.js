@@ -23,6 +23,13 @@ export const auth = betterAuth({
   trustedOrigins: [process.env.FRONTEND_URL || 'http://localhost:5173'],
   database: drizzleAdapter(db, { provider: dbType === 'pg' ? 'pg' : 'mysql' }),
   databaseHooks: {
+    user: {
+      create: {
+        before: async () => {
+          throw new APIError('FORBIDDEN', { message: 'Public registration is disabled. Contact an administrator.' });
+        },
+      },
+    },
     session: {
       create: {
         before: async (newSession) => {
@@ -38,6 +45,7 @@ export const auth = betterAuth({
   },
   emailAndPassword: {
     enabled: true,
+    disableSignUp: true,
   },
   socialProviders: github,
   plugins: [username()],

@@ -4,20 +4,11 @@ import { and, desc, eq, inArray } from 'drizzle-orm';
 import { auth } from '../../../auth.js';
 import { db, schema } from '../../../db/index.js';
 import { isConfiguredAdmin } from './access.js';
+import { availableModules } from './modules.js';
 
 const { account, moduleAssignments, productionAuditLogs, session, user } = schema;
 const router = Router();
 
-const availableModules = [
-  { key: 'overview', label: 'Production overview' },
-  { key: 'production', label: 'Production entry' },
-  { key: 'downtime', label: 'Machine downtime' },
-  { key: 'products', label: 'Products and BOMs' },
-  { key: 'orders', label: 'Manufacturing orders' },
-  { key: 'machines', label: 'Machines and tools' },
-  { key: 'quality', label: 'Quality and traceability' },
-  { key: 'reports', label: 'Reports' },
-];
 const moduleKeys = new Set(availableModules.map(({ key }) => key));
 
 function requireAdmin(req, res) {

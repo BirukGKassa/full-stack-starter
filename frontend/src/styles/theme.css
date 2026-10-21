@@ -186,3 +186,107 @@ html[data-theme="dark"] .prod-reset-password { border-color: #334237; background
   .prod-managed-user-heading { gap: 8px; }
   .prod-reset-password { grid-template-columns: 1fr; }
 }
+
+.lyu-home-hero { display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(300px, .75fr); align-items: center; gap: 7%; padding: 78px 9% 68px; background: #f7f8f3; }
+.lyu-home-hero h1 { margin: 20px 0 15px; color: #1d3d2b; font: 700 clamp(44px, 6vw, 72px)/1.03 'Manrope', sans-serif; letter-spacing: -3.5px; }
+.lyu-home-hero h1 em, .lyu-erp-home h2 em { color: #779268; font-family: Georgia, serif; font-weight: 400; }
+.lyu-home-hero .lyu-hero-description { max-width: 570px; color: #78867b; font-size: 14px; line-height: 1.8; }
+.lyu-company-caption { display: flex; align-items: center; gap: 10px; margin-top: 25px; color: #617267; font-size: 11px; font-weight: 700; }
+.lyu-erp-home-panel { position: relative; overflow: hidden; min-height: 320px; display: flex; flex-direction: column; justify-content: center; padding: 34px; border: 1px solid #e2e9df; border-radius: 20px; background: linear-gradient(145deg, #edf3e8, #e5ede2); }
+.lyu-erp-home-panel > .lyu-preview-mark { position: absolute; top: 25px; right: 26px; }
+.lyu-erp-home-panel > p { color: #71816f; font: 700 10px 'DM Mono', monospace; letter-spacing: 1.2px; }
+.lyu-erp-home-panel h2 { margin: 8px 0 26px; color: #254430; font: 600 clamp(25px, 3vw, 34px)/1.2 'Manrope', sans-serif; letter-spacing: -1px; }
+.lyu-home-panel-lines { display: grid; gap: 10px; }
+.lyu-home-panel-lines span { width: 100%; height: 9px; border-radius: 99px; background: #d1dfca; }
+.lyu-home-panel-lines span:nth-child(2) { width: 76%; }
+.lyu-home-panel-lines span:nth-child(3) { width: 89%; }
+.lyu-home-panel-lines span:nth-child(4) { width: 57%; }
+.lyu-erp-home-panel > small { margin-top: 24px; color: #647967; font-size: 11px; }
+.lyu-license-banner { display: flex; align-items: center; gap: 12px; margin: 22px 9% 0; padding: 13px 16px; border: 1px solid #d7e6d1; border-radius: 11px; background: #f5fbf1; }
+.lyu-license-banner > span { width: 24px; height: 24px; display: grid; flex: 0 0 auto; place-items: center; border-radius: 50%; background: #e2efdb; color: #47764a; font-weight: 700; }
+.lyu-license-banner p { margin: 0; color: #44634a; font-size: 12px; line-height: 1.5; }
+.lyu-license-inactive { border-color: #eed3c9; background: #fff7f4; }
+.lyu-license-inactive > span { background: #fae7df; color: #ad5946; }
+.lyu-license-inactive p { color: #8e4e3e; }
+.lyu-erp-modules .lyu-feature-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.lyu-erp-modules .lyu-feature-card { min-height: 185px; }
+.lyu-company-section { display: flex; align-items: center; justify-content: space-between; gap: 30px; padding: 55px 9%; background: #edf2e9; }
+.lyu-company-section h2 { margin: 12px 0 8px; color: #254430; font: 700 clamp(27px, 4vw, 40px) 'Manrope', sans-serif; }
+.lyu-company-section p:last-child { max-width: 500px; color: #738276; font-size: 12px; line-height: 1.7; }
+.lyu-company-section address { display: grid; gap: 5px; color: #68796e; font-size: 11px; font-style: normal; line-height: 1.6; }
+.lyu-company-section address a { color: #446e49; }
+.lyu-erp-cta { margin-top: 0; }
+.lyu-dashboard-license { display: flex; align-items: center; justify-content: space-between; gap: 14px; margin: 0 0 20px; }
+.lyu-dashboard-license strong { color: #3f7046; font-size: 12px; }
+.lyu-dashboard-license p { margin: 4px 0 0; color: #718075; font-size: 10px; }
+.lyu-dashboard-license.lyu-license-inactive { display: block; }
+.lyu-dashboard-license.lyu-license-inactive strong { color: #a45140; }
+.erp-module-coming-soon { cursor: default; }
+.erp-module-coming-soon > b { color: #7b887e; font-size: 9px; }
+.erp-system-page { display: grid; gap: 16px; }
+.erp-system-page .prod-page-heading { margin: 10px 0 0; }
+.erp-system-page .erp-dashboard-top > div:last-child { display: flex; gap: 8px; }
+.lyu-license-admin { display: grid; gap: 14px; }
+.lyu-license-admin > .prod-card-heading { align-items: flex-start; }
+.lyu-license-facts { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
+.lyu-license-facts > span { display: grid; gap: 5px; padding: 12px; border: 1px solid #e5ebe3; border-radius: 9px; background: #fbfcf9; }
+.lyu-license-facts small { color: #849186; font-size: 9px; text-transform: uppercase; letter-spacing: .4px; }
+.lyu-license-facts strong { color: #35563b; font-size: 12px; text-transform: capitalize; }
+.lyu-license-form { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: end; gap: 10px; }
+.lyu-license-form > button { min-height: 39px; }
+.lyu-license-help { margin: 0; color: #748176; font-size: 10px; line-height: 1.7; }
+.lyu-system-metrics { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
+.lyu-system-metrics article { display: grid; gap: 7px; padding: 16px; border: 1px solid #e5ebe3; border-radius: 10px; background: #fffefa; }
+.lyu-system-metrics article > span { color: #88948a; font: 700 9px 'DM Mono', monospace; letter-spacing: .7px; }
+.lyu-system-metrics article > strong { color: #38553d; font-size: 17px; text-transform: capitalize; }
+.lyu-system-metrics article > small { color: #718075; font-size: 10px; line-height: 1.5; overflow-wrap: anywhere; }
+.prod-assignment-groups { display: grid; gap: 12px; margin-top: 8px; }
+.prod-assignment-group { min-width: 0; padding: 9px; border: 1px solid #e6ebe4; border-radius: 10px; }
+.prod-assignment-group legend { padding: 0 6px; color: #637468; font-size: 10px; font-weight: 700; }
+.prod-assignment-group .prod-module-checks { margin: 0; }
+.prod-session-row { display: flex; align-items: center; justify-content: space-between; gap: 14px; padding: 14px 0; border-top: 1px solid #edf0eb; }
+.prod-session-row > div { display: grid; gap: 5px; }
+.prod-session-row strong { color: #405748; font-size: 12px; }
+.prod-session-row small { color: #7d8c80; font-size: 10px; }
+.prod-security-success { border-color: #d5e6ce; background: #f5faf2; color: #3c6b43; font-size: 12px; }
+.prod-revoke-session { color: #a34e3e; }
+html[data-theme="dark"] .lyu-home-hero { background: #111a16; }
+html[data-theme="dark"] .lyu-home-hero h1, html[data-theme="dark"] .lyu-company-section h2 { color: #dce9dd; }
+html[data-theme="dark"] .lyu-home-hero .lyu-hero-description, html[data-theme="dark"] .lyu-company-section p:last-child { color: #a8b6aa; }
+html[data-theme="dark"] .lyu-company-caption { color: #b5c5b7; }
+html[data-theme="dark"] .lyu-erp-home-panel { border-color: #344439; background: linear-gradient(145deg, #1b2b20, #18241c); }
+html[data-theme="dark"] .lyu-erp-home-panel > p, html[data-theme="dark"] .lyu-erp-home-panel > small { color: #a9b9a7; }
+html[data-theme="dark"] .lyu-erp-home-panel h2 { color: #d9e8d9; }
+html[data-theme="dark"] .lyu-home-panel-lines span { background: #344c37; }
+html[data-theme="dark"] .lyu-license-banner { border-color: #38533c; background: #1b2b20; }
+html[data-theme="dark"] .lyu-license-banner p { color: #c3d8c1; }
+html[data-theme="dark"] .lyu-license-inactive { border-color: #634239; background: #30221e; }
+html[data-theme="dark"] .lyu-license-inactive p { color: #e6b9aa; }
+html[data-theme="dark"] .lyu-company-section { background: #19251e; }
+html[data-theme="dark"] .lyu-company-section address { color: #afbeb1; }
+html[data-theme="dark"] .lyu-company-section address a { color: #b9d79f; }
+html[data-theme="dark"] .lyu-dashboard-license strong { color: #acd3a4; }
+html[data-theme="dark"] .lyu-dashboard-license p { color: #b0beb3; }
+html[data-theme="dark"] .lyu-dashboard-license.lyu-license-inactive strong { color: #e6ad9e; }
+html[data-theme="dark"] .lyu-license-facts > span, html[data-theme="dark"] .lyu-system-metrics article, html[data-theme="dark"] .prod-assignment-group { border-color: #35443a; background: #151f19; }
+html[data-theme="dark"] .lyu-license-facts small, html[data-theme="dark"] .lyu-system-metrics article > span, html[data-theme="dark"] .lyu-system-metrics article > small, html[data-theme="dark"] .lyu-license-help { color: #a8b6aa; }
+html[data-theme="dark"] .lyu-license-facts strong, html[data-theme="dark"] .lyu-system-metrics article > strong, html[data-theme="dark"] .prod-session-row strong { color: #d2e2d3; }
+html[data-theme="dark"] .prod-assignment-group legend { color: #b0beb3; }
+html[data-theme="dark"] .prod-session-row { border-color: #2d3c31; }
+html[data-theme="dark"] .prod-session-row small { color: #a8b6aa; }
+html[data-theme="dark"] .prod-security-success { border-color: #3b563e; background: #1b2b20; color: #c3d8c1; }
+@media (max-width: 760px) {
+  .lyu-home-hero { grid-template-columns: 1fr; padding: 50px 7%; }
+  .lyu-erp-home-panel { min-height: 260px; }
+  .lyu-erp-modules .lyu-feature-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .lyu-company-section { align-items: flex-start; flex-direction: column; padding: 42px 7%; }
+  .lyu-license-facts, .lyu-system-metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .lyu-license-form { grid-template-columns: 1fr; }
+  .erp-system-page .erp-dashboard-top { align-items: flex-start; flex-direction: column; }
+  .erp-system-page .erp-dashboard-top > div:last-child { flex-wrap: wrap; }
+}
+@media (max-width: 480px) {
+  .lyu-erp-modules .lyu-feature-grid { grid-template-columns: 1fr; }
+  .lyu-license-facts, .lyu-system-metrics { grid-template-columns: 1fr; }
+  .prod-session-row { align-items: flex-start; flex-direction: column; }
+}

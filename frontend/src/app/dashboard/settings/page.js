@@ -130,16 +130,25 @@ export default function AdminSettings() {
     }
   }
 
-  const renderModules = (modules, setter) => (
-    <div className="prod-module-checks">
-      {(data?.modules || []).map((module) => (
-        <label key={module.key}>
-          <input type="checkbox" checked={modules.includes(module.key)} onChange={() => toggleModule(modules, setter, module.key)} />
-          <span>{module.label}</span>
-        </label>
-      ))}
-    </div>
-  );
+  const renderModules = (modules, setter) => {
+    const groups = (data?.modules || []).reduce((result, module) => {
+      const group = module.group || 'ERP modules';
+      result[group] ||= [];
+      result[group].push(module);
+      return result;
+    }, {});
+    return <div className="prod-assignment-groups">{Object.entries(groups).map(([group, items]) => (
+      <fieldset className="prod-assignment-group" key={group}>
+        <legend>{group}</legend>
+        <div className="prod-module-checks">{items.map((module) => (
+          <label key={module.key}>
+            <input type="checkbox" checked={modules.includes(module.key)} onChange={() => toggleModule(modules, setter, module.key)} />
+            <span>{module.label}</span>
+          </label>
+        ))}</div>
+      </fieldset>
+    ))}</div>;
+  };
 
   if (isPending || checkingAccess) return <div className="page-loading">Checking administrator access…</div>;
   if (!session?.user) return <Navigate to="/go?mode=signin" replace />;

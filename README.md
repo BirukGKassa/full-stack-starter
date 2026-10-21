@@ -91,8 +91,10 @@ frontend/
     app/
       layout.js             Shared layout
       page.js               Home page (/)
-      go/page.js            Sign in and sign up (/go)
+      go/page.js            Sign in and private initial-admin setup (/go)
       dashboard/page.js     Session-protected dashboard (/dashboard)
+      dashboard/security/   Password and session management
+      dashboard/system/     Company, license, health, logs, and downtime administration
     lib/auth-client.js      Better Auth React client
     styles/globals.css      Tailwind directives and UI styles
 ```
@@ -102,7 +104,9 @@ All application source is JavaScript. Tailwind CSS compiles the styles, esbuild 
 ## Backend and authentication
 
 - Better Auth endpoints: `/api/auth/*`
-- Email/password registration, sign-in, and sign-out are enabled.
+- Public registration is disabled. A private initial-admin link may be configured with `REGISTER_ADMIN_LINK`; administrator emails are restricted to `LYU_ADMIN_EMAILS`.
+- Users sign in with their email, username, or employee ID. Password changes and session revocation are available in the account security page.
+- Set the server-only `LICENCE_KEY` to enable license activation and annual renewal in the admin system console. Unlicensed or expired systems allow administrator license recovery only.
 - Optional GitHub OAuth: set `GITHUB_CLIENT_ID` and `GITHUB_CLIENT_SECRET` in the root `.env`.
 - `GET /api/session`: current session, or HTTP `401` when signed out.
 - `GET /api/health`: database connectivity check.

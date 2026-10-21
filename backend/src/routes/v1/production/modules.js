@@ -1,0 +1,17 @@
+export const availableModules = [
+  { key: 'dashboard', label: 'ERP dashboard', group: 'Core' },
+  { key: 'production', label: 'Production', group: 'Operations' },
+  { key: 'inventory', label: 'Inventory and warehouse', group: 'Operations' },
+  { key: 'purchasing', label: 'Purchasing and suppliers', group: 'Operations' },
+  { key: 'sales', label: 'Sales and customer orders', group: 'Commercial' },
+  { key: 'finance', label: 'Finance and accounting', group: 'Business' },
+  { key: 'hr', label: 'Human resources', group: 'Business' },
+  { key: 'quality', label: 'Quality management', group: 'Operations' },
+  { key: 'maintenance', label: 'Maintenance', group: 'Operations' },
+  { key: 'reports', label: 'Reports and analytics', group: 'Insights' },
+  { key: 'downtime', label: 'Production · machine downtime', group: 'Production tasks' },
+  { key: 'products', label: 'Production · products and BOMs', group: 'Production tasks' },
+  { key: 'orders', label: 'Production · manufacturing orders', group: 'Production tasks' },
+  { key: 'machines', label: 'Production · machines and tools', group: 'Production tasks' },
+  { key: 'overview', label: 'Production · overview', group: 'Production tasks' },
+];

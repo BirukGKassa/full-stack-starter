@@ -1,56 +1,101 @@
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 
-const features = [
-  { number: '01', title: 'Run production', text: 'Record shift output, scrap, machine events, and material usage as the work happens.', icon: '↗' },
-  { number: '02', title: 'Keep every line moving', text: 'Track downtime by machine, assign work orders, and see what needs attention.', icon: '◷' },
-  { number: '03', title: 'Make better decisions', text: 'Review quality, traceability, machine performance, and weekly or monthly reports.', icon: '▥' },
+const modules = [
+  ['Operations', 'Production, planning, and manufacturing orders', '◫'],
+  ['Inventory', 'Stock, warehouse, and material traceability', '▤'],
+  ['Procurement', 'Purchasing, suppliers, and incoming goods', '↗'],
+  ['Sales', 'Customer orders, delivery, and fulfillment', '⌑'],
+  ['Finance', 'Accounting, costs, and financial reporting', '◷'],
+  ['People', 'Employees, access, and workforce operations', '♧'],
+  ['Quality', 'Inspections, standards, and corrective actions', '◉'],
+  ['Maintenance', 'Assets, preventive care, and downtime', '⚙'],
+  ['Business intelligence', 'Connected reports and company-wide insight', '▥'],
 ];
 
-const factories = [
-  { code: 'AMH', name: 'Aluminum profiles', kind: 'EXTRUSION' },
-  { code: 'AMR', name: 'PP woven bags', kind: 'PACKAGING' },
-  { code: 'KORKI', name: 'Bottle closures', kind: 'INJECTION MOLDING' },
-  { code: 'RASA', name: 'Flour milling', kind: 'FOOD PRODUCTION' },
-];
+function licenseMessage(license) {
+  if (!license) return null;
+  if (!license.isActive) return 'Lyu ERP license is not active. Contact your system administrator.';
+  const days = license.daysRemaining;
+  if (days <= 3) return `Urgent: your Lyu ERP license expires in ${days} day${days === 1 ? '' : 's'}. Renew now to avoid interruption.`;
+  if (days <= 10) return `Your Lyu ERP license has ${days} days remaining. Please renew soon.`;
+  if (days <= 20) return `Your Lyu ERP license has ${days} days remaining. Plan your renewal.`;
+  return `Your Lyu ERP license is currently active with ${days} days remaining.`;
+}
 
 export default function HomePage() {
+  const [system, setSystem] = useState(null);
+
+  useEffect(() => {
+    let active = true;
+    const load = () => fetch('/api/public/system', { credentials: 'include' })
+      .then((response) => response.ok ? response.json() : Promise.reject(new Error(`System information unavailable (${response.status})`)))
+      .then((data) => { if (active) setSystem(data); })
+      .catch((error) => console.error('Could not load public system information:', error));
+    load();
+    const timer = window.setInterval(load, 10 * 60 * 1000);
+    return () => { active = false; window.clearInterval(timer); };
+  }, []);
+
+  const companyName = system?.company?.companyName || 'Lyu ERP';
   return (
-    <div className="lyu-landing">
-      <section className="lyu-hero">
-        <div className="lyu-hero-copy">
-          <p className="eyebrow"><span className="eyebrow-line" /> PRODUCTION, QUALITY, AND PEOPLE</p>
-          <h1>Make every<br />shift <em>count.</em></h1>
-          <p className="lyu-hero-description">Lyu ERP brings your shop floor into focus. Capture production, resolve downtime, manage orders, and turn factory data into decisions.</p>
+    <div className="lyu-landing lyu-erp-home">
+      <section className="lyu-home-hero">
+        <div>
+          <p className="eyebrow"><span className="eyebrow-line" /> ONE CONNECTED BUSINESS SYSTEM</p>
+          <h1>Run your whole<br />business with <em>clarity.</em></h1>
+          <p className="lyu-hero-description">Lyu ERP connects the people, processes, and information behind your business—from finance and people operations to inventory, customer orders, and manufacturing.</p>
           <div className="lyu-hero-actions">
-            <Link to="/go?mode=signin" className="button button-dark">Open production workspace <span aria-hidden="true">↗</span></Link>
-            <a href="#system" className="lyu-secondary-link">Explore the system <span aria-hidden="true">↓</span></a>
+            <Link to="/go" className="button button-dark">Sign in to Lyu ERP <span aria-hidden="true">↗</span></Link>
+            <a href="#modules" className="lyu-secondary-link">Explore ERP modules <span aria-hidden="true">↓</span></a>
           </div>
-          <div className="lyu-hero-proof"><span className="lyu-pulse" /> <p><strong>One connected workspace</strong><br />for the people who keep production moving.</p></div>
+          <div className="lyu-company-caption"><span className="lyu-pulse" /> {companyName}</div>
         </div>
-        <div className="lyu-hero-visual">
-          <div className="lyu-hero-orbit lyu-hero-orbit-one" /><div className="lyu-hero-orbit lyu-hero-orbit-two" />
-          <div className="lyu-hero-status"><span className="lyu-pulse" /> LIVE PRODUCTION CONTROL</div>
-          <div className="lyu-preview">
-            <div className="lyu-preview-top"><span className="lyu-preview-mark">L.</span><span>FACTORY OVERVIEW</span><span>•••</span></div>
-            <div className="lyu-preview-heading"><div><small>MONDAY · PRODUCTION SUMMARY</small><h2>Good shift, AMH</h2></div><span className="lyu-preview-live">LIVE</span></div>
-            <div className="lyu-preview-metrics"><div><small>GOOD OUTPUT</small><strong>12,480</strong><i>units today</i></div><div><small>OPEN ORDERS</small><strong>08</strong><i>in progress</i></div></div>
-            <div className="lyu-preview-chart-title"><span>SHIFT OUTPUT</span><span>LAST 7 DAYS</span></div>
-            <div className="lyu-preview-bars">{[38, 55, 43, 78, 64, 88, 72].map((height, index) => <span key={index} style={{ height: `${height}%` }} />)}</div>
-            <div className="lyu-preview-bottom"><span><i /> 3 MACHINES RUNNING</span><span>OEE 84.6%</span></div>
-          </div>
-          <div className="lyu-hero-note"><span>✳</span><div><small>BUILT FOR THE FLOOR</small><strong>Clarity from every shift.</strong></div></div>
+        <div className="lyu-erp-home-panel">
+          <span className="lyu-preview-mark">L.</span>
+          <p>LYU ERP WORKSPACE</p>
+          <h2>One source of truth.<br /><em>Every team in sync.</em></h2>
+          <div className="lyu-home-panel-lines"><span /><span /><span /><span /></div>
+          <small>{companyName}</small>
         </div>
       </section>
-      <section className="lyu-factory-strip"><span>SUPPORTING YOUR FACTORIES</span>{factories.map((factory) => <div key={factory.code}><strong>{factory.code}</strong><small>{factory.kind}</small></div>)}</section>
-      <section className="lyu-features" id="system">
-        <div className="lyu-section-heading"><p className="eyebrow"><span className="eyebrow-line" /> THE LYU ERP WORKSPACE</p><h2>Every part of production,<br /><em>working together.</em></h2><p>Practical tools for the data clerks, operators, technicians, and managers who make the work happen.</p></div>
-        <div className="lyu-feature-grid">{features.map((feature) => <article className="lyu-feature-card" key={feature.number}><span className="lyu-feature-number">{feature.number}</span><span className="lyu-feature-icon">{feature.icon}</span><h3>{feature.title}</h3><p>{feature.text}</p></article>)}</div>
+
+      {system?.license && <div className={`lyu-license-banner ${system.license.isActive ? 'lyu-license-active' : 'lyu-license-inactive'}`} role="status">
+        <span>{system.license.isActive ? '✓' : '!'}</span><p>{licenseMessage(system.license)}</p>
+      </div>}
+
+      <section className="lyu-features lyu-erp-modules" id="modules">
+        <div className="lyu-section-heading">
+          <p className="eyebrow"><span className="eyebrow-line" /> THE LYU ERP PLATFORM</p>
+          <h2>Every function.<br /><em>Working together.</em></h2>
+          <p>A unified workspace for business operations, with access tailored to each team.</p>
+        </div>
+        <div className="lyu-feature-grid">{modules.map(([name, detail, icon], index) => (
+          <article className="lyu-feature-card" key={name}>
+            <span className="lyu-feature-number">{String(index + 1).padStart(2, '0')}</span>
+            <span className="lyu-feature-icon">{icon}</span>
+            <h3>{name}</h3>
+            <p>{detail}</p>
+          </article>
+        ))}</div>
       </section>
-      <section className="lyu-factory-section">
-        <div><p className="eyebrow"><span className="eyebrow-line" /> ONE SYSTEM, MULTIPLE FACTORIES</p><h2>Your factory has<br /><em>its own rhythm.</em></h2><p>Keep each plant’s machines, products, operators, and reports organized while sharing one reliable ERP workspace.</p></div>
-        <div className="lyu-factory-list">{factories.map((factory) => <article key={factory.code}><span>{factory.code}</span><strong>{factory.name}</strong><small>{factory.kind}</small><b>↗</b></article>)}</div>
+
+      <section className="lyu-company-section">
+        <div><p className="eyebrow"><span className="eyebrow-line" /> YOUR BUSINESS, CONNECTED</p>
+          <h2>{companyName}</h2>
+          <p>Company information, teams, and day-to-day operations in one secure system.</p>
+        </div>
+        {system?.company?.addressLine1 && <address>
+          {[system.company.addressLine1, system.company.addressLine2, [system.company.city, system.company.region, system.company.postalCode].filter(Boolean).join(', '), system.company.country].filter(Boolean).map((line) => <span key={line}>{line}</span>)}
+          {system.company.email && <a href={`mailto:${system.company.email}`}>{system.company.email}</a>}
+        </address>}
       </section>
-      <section className="lyu-cta"><div><p className="eyebrow"><span className="eyebrow-line" /> READY WHEN YOUR TEAM IS</p><h2>Bring the factory<br /><em>into focus.</em></h2></div><Link to="/go?mode=signin" className="button button-light">Sign in to Lyu ERP <span aria-hidden="true">↗</span></Link><span className="lyu-cta-mark">L.</span></section>
+
+      <section className="lyu-cta lyu-erp-cta">
+        <div><p className="eyebrow"><span className="eyebrow-line" /> LYU ERP · BUSINESS OPERATIONS</p><h2>Bring your teams<br /><em>together.</em></h2></div>
+        <Link to="/go" className="button button-light">Sign in to your workspace <span aria-hidden="true">↗</span></Link>
+        <span className="lyu-cta-mark">L.</span>
+      </section>
     </div>
   );
 }
