@@ -23,6 +23,7 @@ export default function DashboardPage() {
   const [access, setAccess] = useState(null);
   const [system, setSystem] = useState(null);
   const [accessError, setAccessError] = useState('');
+  const [signOutError, setSignOutError] = useState('');
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -43,9 +44,12 @@ export default function DashboardPage() {
   const firstName = session?.user?.name?.trim().split(/\s+/)[0] || 'there';
   const signOut = async () => {
     setSigningOut(true);
+    setSignOutError('');
     try {
       await authClient.signOut();
       navigate('/', { replace: true });
+    } catch (error) {
+      setSignOutError(error.message || 'Could not sign out. Please try again.');
     } finally {
       setSigningOut(false);
     }
@@ -59,9 +63,24 @@ export default function DashboardPage() {
   return (
     <main className="erp-dashboard">
       <div className="erp-dashboard-top">
-        <div className='flex flex-col'>
-          <p className="prod-eyebrow self-start">LYU ERP · BUSINESS OPERATIONS</p>
-          <p>{system?.company?.companyName || 'Company workspace'} · {today}</p></div><div><span className="erp-user-chip">{session.user.name}</span><Link to="/dashboard/security" className="prod-button prod-button-outline">Password & sessions</Link>{(access?.user?.isAdmin || system?.isAdmin) && <><Link to="/dashboard/settings" className="prod-button prod-button-outline">User access</Link><Link to="/dashboard/system" className="prod-button prod-button-outline">System console</Link></>}<button className="theme-toggle" onClick={toggleTheme}>{theme === 'light' ? '☾ Dark mode' : '☀ Light mode'}</button><button className="erp-signout" onClick={signOut} disabled={signingOut}>{signingOut ? 'Signing out…' : 'Sign out ↗'}</button></div></div>
+        <div className="erp-dashboard-heading">
+          <p className="prod-eyebrow">LYU ERP · BUSINESS OPERATIONS</p>
+          <p>{system?.company?.companyName || 'Company workspace'} · {today}</p>
+        </div>
+        <div className="erp-dashboard-actions">
+          {(access?.user?.isAdmin || system?.isAdmin) && <><Link to="/dashboard/settings" className="prod-button prod-button-outline">User access</Link><Link to="/dashboard/system" className="prod-button prod-button-outline">System console</Link></>}
+          <button className="theme-toggle" onClick={toggleTheme}>{theme === 'light' ? '☾ Dark mode' : '☀ Light mode'}</button>
+          <details className="erp-account-menu">
+            <summary aria-label="Open account menu"><span className="erp-account-avatar">{session.user.name?.trim().charAt(0).toUpperCase() || 'U'}</span><span>{session.user.name}</span><b aria-hidden="true">⌄</b></summary>
+            <div className="erp-account-popover">
+              <div className="erp-account-popover-user"><strong>{session.user.name}</strong><small>{session.user.email}</small></div>
+              <Link to="/dashboard/security">Account reset & security <span>↗</span><small>Change password and manage sessions</small></Link>
+              <button type="button" onClick={signOut} disabled={signingOut}>{signingOut ? 'Signing out…' : 'Sign out'} <span>↗</span></button>
+            </div>
+          </details>
+        </div>
+      </div>
+      {signOutError && <p className="form-error" role="alert">{signOutError}</p>}
       <section className="erp-dashboard-welcome"><div><span className="prod-factory-chip">{system?.company?.companyName || 'LYU ERP WORKSPACE'}</span><h1>Welcome back, {firstName}.</h1><p>Your company operations, teams, and assigned work in one secure system.</p></div>{visibleModules.some((item) => item.key === 'production') && <Link to="/production" className="prod-button prod-button-primary">Open production <span>↗</span></Link>}</section>
       {system?.license && <section className={`prod-card lyu-dashboard-license ${system.license.isActive ? 'lyu-license-active' : 'lyu-license-inactive'}`}><strong>{system.license.isActive ? `License active · ${system.license.daysRemaining} days remaining` : 'System license inactive'}</strong><p>{system.license.isActive ? 'Renewal is available during the final 10 days.' : 'System access is restricted. Contact your administrator to activate or renew the license.'}</p>{access?.user?.isAdmin && <Link className="prod-button prod-button-outline" to="/dashboard/system#license">Manage license</Link>}</section>}
       {system?.license && !system.license.isActive ? <section className="erp-modules"><div className="prod-empty"><strong>Workspace access is temporarily restricted</strong><p>{system.isAdmin ? 'Renew the system license from the admin console to restore module access.' : 'All modules remain available again after your administrator activates a valid license.'}</p></div></section> : <section className="erp-modules"><div className="erp-modules-heading"><div><p className="prod-eyebrow">YOUR ASSIGNED WORK</p><h2>ERP modules</h2><p>Only modules assigned to your account are shown here. Ask an administrator if your responsibilities change.</p></div>{access?.user?.isAdmin && <span className="prod-pill prod-pill-gold">Administrator</span>}</div>

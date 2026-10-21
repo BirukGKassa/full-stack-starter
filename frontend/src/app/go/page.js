@@ -27,7 +27,7 @@ export default function GoPage() {
   const navigate = useNavigate();
   const setupToken = params.get('setup') || '';
   const isInitialSetup = Boolean(setupToken);
-  const { data: session, isPending } = authClient.useSession();
+  const { data: session, isPending, refetch: refreshSession } = authClient.useSession();
 
   useEffect(() => {
     if (setupToken) return;
@@ -52,6 +52,8 @@ export default function GoPage() {
       } else {
         const result = await submitJson('/api/auth/sign-in/identifier', { identifier, password });
         if (result.message && result.status >= 400) throw new Error(result.message);
+        const refreshedSession = await refreshSession();
+        if (!refreshedSession.data?.user) throw new Error('Sign-in succeeded, but your session could not be confirmed. Please try again.');
         navigate('/dashboard', { replace: true });
       }
     } catch (submitError) {

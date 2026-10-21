@@ -607,7 +607,6 @@ export default function ProductionPage() {
     <div className="prod-shell">
       <aside className="prod-sidebar">
         <Link to="/" className="brand prod-brand"><span className="brand-mark"><span /></span><span>LYU<span className="brand-dot"> ERP</span></span></Link>
-        <div className="prod-factory-select"><span>ACTIVE FACTORY</span><select aria-label="Select factory" value={selectedCompany} onChange={(event) => { setSelectedCompany(event.target.value); setOperatorReport(null); }}><option value="">All factories</option>{companies.map((company) => <option value={company.code} key={company.code}>{company.code} · {company.name}</option>)}</select></div>
         {['WORKSPACE', 'DATA ENTRY', 'OPERATIONS', 'INSIGHTS'].map((group) => <div className="prod-nav-group" key={group}>
           <p>{group}</p>{navigation.filter((item) => item.group === group && (isAdmin || access?.modules?.includes(item.id))).map((item) => <button key={item.id} onClick={() => setActiveView(item.id)} className={`prod-nav-link ${activeView === item.id ? 'prod-nav-link-active' : ''}`}><span>{item.icon}</span>{item.label}{item.id === 'downtime' && activeDowntime.length > 0 && <i>{activeDowntime.length}</i>}</button>)}
         </div>)}

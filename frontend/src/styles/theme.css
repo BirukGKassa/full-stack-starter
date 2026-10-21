@@ -103,7 +103,13 @@ html[data-theme="dark"] .lyu-factory-list article > span, html[data-theme="dark"
 html[data-theme="dark"] .lyu-cta { background: #142d20; }
 html[data-theme="dark"] .erp-dashboard { color: #dce7de; }
 html[data-theme="dark"] .erp-dashboard-top { border-color: #334237; }
-html[data-theme="dark"] .erp-dashboard-top > div:first-child > p:last-child, html[data-theme="dark"] .erp-user-chip { color: #b0beb2; }
+html[data-theme="dark"] .erp-dashboard-heading > p:last-child, html[data-theme="dark"] .erp-user-chip { color: #b0beb2; }
+html[data-theme="dark"] .erp-account-menu > summary, html[data-theme="dark"] .erp-account-popover { border-color: #35463b; background: #19251e; color: #d5e1d6; }
+html[data-theme="dark"] .erp-account-avatar { background: #304535; color: #d0e5c4; }
+html[data-theme="dark"] .erp-account-popover-user { border-color: #35463b; }
+html[data-theme="dark"] .erp-account-popover-user strong, html[data-theme="dark"] .erp-account-popover a, html[data-theme="dark"] .erp-account-popover button { color: #d5e1d6; }
+html[data-theme="dark"] .erp-account-popover-user small, html[data-theme="dark"] .erp-account-popover a small { color: #a1afa4; }
+html[data-theme="dark"] .erp-account-popover a:hover, html[data-theme="dark"] .erp-account-popover button:hover:not(:disabled) { background: #26372b; }
 html[data-theme="dark"] .erp-dashboard-welcome h1 { color: #dce9dd; }
 html[data-theme="dark"] .erp-dashboard-welcome p, html[data-theme="dark"] .erp-dashboard-cards p { color: #adbaaf; }
 html[data-theme="dark"] .erp-dashboard-cards article, html[data-theme="dark"] .erp-modules { border-color: #2e3d32; background: #18241c; }
