@@ -1,13 +1,10 @@
 import { productionApi } from '../../../lib/production-api.js';
 import { DataTable, EntryCard, Input, Select, Textarea } from '../components/ui.js';
+import { toIso } from '../utils.js';
 
 function localDateTime(date = new Date()) {
   const local = new Date(date.getTime() - date.getTimezoneOffset() * 60000);
   return local.toISOString().slice(0, 16);
-}
-
-function toIso(value) {
-  return value ? new Date(value).toISOString() : null;
 }
 
 export default function ProductionEntryView({ code, orderOptions, machineOptions, reasonOptions, scoped, recentLogs, saving, submit, refresh, formatNumber, actor, workstation, onWorkstationChange }) {
