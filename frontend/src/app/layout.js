@@ -14,7 +14,6 @@ export default function RootLayout() {
   return (
     <div className="min-h-screen">
       <main><Outlet /></main>
-      {!isAuthPage && <footer className="site-footer"><span>© 2026 Lyu ERP</span><span>Production, quality, and people in one place.</span></footer>}
     </div>
   );
 }

@@ -3,7 +3,7 @@ import { eq } from 'drizzle-orm';
 import { auth } from '../../../auth.js';
 import { db, schema } from '../../../db/index.js';
 
-const { moduleAssignments, productionAuditLogs } = schema;
+const { moduleAssignments, productionAuditLogs, user } = schema;
 
 const routeModules = {
   boms: 'products',
@@ -63,6 +63,11 @@ export async function productionAccess(req, res, next) {
       return res.status(401).json({ status: 'fail', message: 'Sign in to access production operations.' });
     }
 
+    const [accountUser] = await db.select({ isActive: user.isActive }).from(user).where(eq(user.id, session.user.id));
+    if (!accountUser?.isActive) {
+      return res.status(403).json({ status: 'fail', message: 'This account is inactive. Contact an administrator.' });
+    }
+
     const isAdmin = adminEmails.has(session.user.email.toLowerCase());
     const [first] = pathParts(req);
     const isAccessCheck = first === 'access';
@@ -70,19 +75,19 @@ export async function productionAccess(req, res, next) {
     const isAudit = first === 'audit';
     let assignedModules = [];
 
-    if (!isAdmin && !isAccessCheck) {
+    if (!isAdmin) {
       const assignments = await db.select({ moduleKey: moduleAssignments.moduleKey })
         .from(moduleAssignments)
         .where(eq(moduleAssignments.userId, session.user.id));
       assignedModules = assignments.map((assignment) => assignment.moduleKey);
 
-      if (isSettings || (isAudit && assignedModules.length === 0)) {
+      if (!isAccessCheck && (isSettings || (isAudit && assignedModules.length === 0))) {
         return res.status(403).json({ status: 'fail', message: 'Administrator access is required.' });
       }
 
-      if (isAudit && assignedModules.length > 0) {
+      if (!isAccessCheck && isAudit && assignedModules.length > 0) {
         req.productionAuditScope = session.user.id;
-      } else if (!isAudit) {
+      } else if (!isAccessCheck && !isAudit) {
         const moduleKey = routeModules[first];
         const authorizedModules = req.method === 'GET' ? (readModules[first] || [moduleKey]) : [moduleKey];
         if (!moduleKey || !authorizedModules.some((module) => assignedModules.includes(module))) {
