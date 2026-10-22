@@ -104,7 +104,7 @@ All application source is JavaScript. Tailwind CSS compiles the styles, esbuild 
 ## Backend and authentication
 
 - Better Auth endpoints: `/api/auth/*`
-- Public registration is disabled. A private initial-admin link may be configured with `REGISTER_ADMIN_LINK`; administrator emails are restricted to `LYU_ADMIN_EMAILS`.
+- Public registration is disabled. A private initial-owner link may be configured with `REGISTER_ADMIN_LINK`; the owner is selected by `LYU_OWNER_EMAIL` or the first address in `LYU_ADMIN_EMAILS`. The owner manages administrator roles.
 - Users sign in with their email, username, or employee ID. Password changes and session revocation are available in the account security page.
 - Set the server-only `LICENCE_KEY` to enable license activation and annual renewal in the admin system console. Unlicensed or expired systems allow administrator license recovery only.
 - Optional GitHub OAuth: set `GITHUB_CLIENT_ID` and `GITHUB_CLIENT_SECRET` in the root `.env`.

@@ -15,6 +15,8 @@ export function ThemeProvider({ children }) {
 
   useEffect(() => {
     document.documentElement.dataset.theme = theme;
+    document.documentElement.classList.toggle('dark', theme === 'dark');
+    document.documentElement.classList.add('scroll-smooth');
     try {
       window.localStorage.setItem(storageKey, theme);
     } catch {

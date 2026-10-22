@@ -3,6 +3,7 @@ import { productionApi } from '../../../lib/production-api.js';
 
 export default function useAdminSettings() {
   const [isAdmin, setIsAdmin] = useState(false);
+  const [isOwner, setIsOwner] = useState(false);
   const [checkingAccess, setCheckingAccess] = useState(true);
   const [data, setData] = useState(null);
   const [error, setError] = useState('');
@@ -23,7 +24,12 @@ export default function useAdminSettings() {
   };
   useEffect(() => {
     let active = true;
-    productionApi.getAccess().then((access) => { if (active) setIsAdmin(Boolean(access.user?.isAdmin)); })
+    productionApi.getAccess().then((access) => {
+      if (active) {
+        setIsAdmin(Boolean(access.user?.isAdmin));
+        setIsOwner(Boolean(access.user?.isOwner));
+      }
+    })
       .catch((accessError) => { if (active) setError(accessError.message || 'Could not verify administrator access.'); })
       .finally(() => { if (active) setCheckingAccess(false); });
     return () => { active = false; };
@@ -35,6 +41,6 @@ export default function useAdminSettings() {
     return (data?.users || []).filter((account) => [account.name, account.username, account.email, account.employeeId].some((value) => String(value || '').toLowerCase().includes(term)));
   }, [data, searchTerm]);
   const updateModules = (current, key) => current.includes(key) ? current.filter((item) => item !== key) : [...current, key];
-  return { isAdmin, checkingAccess, data, error, setError, saving, setSaving, toast, setToast, newModules, setNewModules, drafts, setDrafts,
+  return { isAdmin, isOwner, checkingAccess, data, error, setError, saving, setSaving, toast, setToast, newModules, setNewModules, drafts, setDrafts,
     searchInput, setSearchInput, searchTerm, setSearchTerm, resetPasswordUser, setResetPasswordUser, reload, visibleUsers, updateModules };
 }

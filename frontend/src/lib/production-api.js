@@ -33,6 +33,7 @@ export const productionApi = {
   listAudit: () => request('/audit?limit=250'),
   listUsers: () => request('/settings/users'),
   createUser: (body) => request('/settings/users', { method: 'POST', body }),
+  setUserAdmin: (userId, isAdmin) => request(`/settings/users/${encodeURIComponent(userId)}/admin`, { method: 'PUT', body: { isAdmin } }),
   updateUserModules: (userId, modules) => request(`/settings/users/${encodeURIComponent(userId)}/modules`, { method: 'PUT', body: { modules } }),
   setUserActive: (userId, isActive) => request(`/settings/users/${encodeURIComponent(userId)}/active`, { method: 'PUT', body: { isActive } }),
   resetUserPassword: (userId, temporaryPassword) => request(`/settings/users/${encodeURIComponent(userId)}/password`, { method: 'PUT', body: { temporaryPassword } }),

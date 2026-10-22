@@ -3,7 +3,7 @@ import { Router } from 'express';
 import { and, desc, eq, inArray } from 'drizzle-orm';
 import { auth } from '../../../auth.js';
 import { db, schema } from '../../../db/index.js';
-import { isConfiguredAdmin } from './access.js';
+import { ADMIN_ROLE, isConfiguredAdmin, isOwnerEmail, REVOKED_ADMIN_ROLE } from './access.js';
 import { availableModules } from './modules.js';
 
 const { account, moduleAssignments, productionAuditLogs, session, user } = schema;
@@ -14,6 +14,12 @@ const moduleKeys = new Set(availableModules.map(({ key }) => key));
 function requireAdmin(req, res) {
   if (req.productionActor?.isAdmin) return true;
   res.status(403).json({ status: 'fail', message: 'Administrator access is required.' });
+  return false;
+}
+
+function requireOwner(req, res) {
+  if (req.productionActor?.isOwner) return true;
+  res.status(403).json({ status: 'fail', message: 'Only the workspace owner can manage administrator roles.' });
   return false;
 }
 
@@ -41,7 +47,7 @@ router.get('/settings/users', async (req, res) => {
       createdAt: user.createdAt,
     }).from(user);
     const userIds = users.map((item) => item.id);
-    const [assignments, sessions] = await Promise.all([
+    const [allAssignments, sessions] = await Promise.all([
       db.select().from(moduleAssignments),
       userIds.length
         ? db.select({
@@ -61,10 +67,23 @@ router.get('/settings/users', async (req, res) => {
       }
       sessionSummary.set(item.userId, summary);
     }
-    const usersWithSessions = users.map((item) => ({
-      ...item,
-      session: sessionSummary.get(item.id) || { activeCount: 0, lastSessionAt: null },
-    }));
+    const assignments = allAssignments.filter(({ moduleKey }) => moduleKey !== ADMIN_ROLE && moduleKey !== REVOKED_ADMIN_ROLE);
+    const roles = new Map();
+    for (const { userId, moduleKey } of allAssignments) {
+      const role = roles.get(userId) || new Set();
+      role.add(moduleKey);
+      roles.set(userId, role);
+    }
+    const usersWithSessions = users.map((item) => {
+      const role = roles.get(item.id) || new Set();
+      const isOwner = isOwnerEmail(item.email);
+      return {
+        ...item,
+        isOwner,
+        isAdmin: isOwner || role.has(ADMIN_ROLE) || (isConfiguredAdmin(item.email) && !role.has(REVOKED_ADMIN_ROLE)),
+        session: sessionSummary.get(item.id) || { activeCount: 0, lastSessionAt: null },
+      };
+    });
     res.json({ status: 'success', data: { users: usersWithSessions, assignments, modules: availableModules } });
   } catch (error) {
     res.status(500).json({ status: 'error', message: error.message });
@@ -80,6 +99,10 @@ router.post('/settings/users', async (req, res) => {
     const employeeId = String(req.body.employeeId || '').trim();
     const password = String(req.body.temporaryPassword || '');
     const modules = [...new Set(Array.isArray(req.body.modules) ? req.body.modules : [])];
+    const createAsAdmin = req.body.isAdmin === true;
+    if (createAsAdmin && !req.productionActor.isOwner) {
+      return res.status(403).json({ status: 'fail', message: 'Only the workspace owner can create administrator accounts.' });
+    }
 
     if (name.length < 2 || name.length > 255) {
       return res.status(400).json({ status: 'fail', message: 'Name must be between 2 and 255 characters.' });
@@ -142,6 +165,14 @@ router.post('/settings/users', async (req, res) => {
           assignedBy: req.productionActor.id,
         })));
       }
+      if (createAsAdmin) {
+        await tx.insert(moduleAssignments).values({
+          id: randomUUID(),
+          userId: newUser.id,
+          moduleKey: ADMIN_ROLE,
+          assignedBy: req.productionActor.id,
+        });
+      }
       return newUser;
     });
 
@@ -150,6 +181,7 @@ router.post('/settings/users', async (req, res) => {
       data: {
         user: { id: createdUser.id, name: createdUser.name, username: createdUser.username, email: createdUser.email, employeeId: createdUser.employeeId, isActive: createdUser.isActive },
         assignments: modules,
+        isAdmin: createAsAdmin,
       },
     });
   } catch (error) {
@@ -162,6 +194,40 @@ router.post('/settings/users', async (req, res) => {
   }
 });
 
+router.put('/settings/users/:userId/admin', async (req, res) => {
+  if (!requireOwner(req, res)) return;
+  try {
+    if (typeof req.body.isAdmin !== 'boolean') {
+      return res.status(400).json({ status: 'fail', message: 'isAdmin must be a boolean.' });
+    }
+    const [targetUser] = await db.select({ id: user.id, email: user.email }).from(user).where(eq(user.id, req.params.userId));
+    if (!targetUser) return res.status(404).json({ status: 'fail', message: 'User not found.' });
+    if (isOwnerEmail(targetUser.email)) {
+      return res.status(400).json({ status: 'fail', message: 'The workspace owner role cannot be changed.' });
+    }
+
+    await db.transaction(async (tx) => {
+      await tx.delete(moduleAssignments).where(and(
+        eq(moduleAssignments.userId, targetUser.id),
+        inArray(moduleAssignments.moduleKey, [ADMIN_ROLE, REVOKED_ADMIN_ROLE]),
+      ));
+      const needsRevocation = !req.body.isAdmin && isConfiguredAdmin(targetUser.email);
+      if (req.body.isAdmin || needsRevocation) {
+        await tx.insert(moduleAssignments).values({
+          id: randomUUID(),
+          userId: targetUser.id,
+          moduleKey: req.body.isAdmin ? ADMIN_ROLE : REVOKED_ADMIN_ROLE,
+          assignedBy: req.productionActor.id,
+        });
+      }
+    });
+    res.json({ status: 'success', data: { userId: targetUser.id, isAdmin: req.body.isAdmin } });
+  } catch (error) {
+    console.error('Could not update administrator role:', error);
+    res.status(500).json({ status: 'error', message: error.message });
+  }
+});
+
 router.put('/settings/users/:userId/active', async (req, res) => {
   if (!requireAdmin(req, res)) return;
   try {
@@ -170,8 +236,18 @@ router.put('/settings/users/:userId/active', async (req, res) => {
     }
     const [targetUser] = await db.select({ id: user.id, email: user.email }).from(user).where(eq(user.id, req.params.userId));
     if (!targetUser) return res.status(404).json({ status: 'fail', message: 'User not found.' });
-    if (!req.body.isActive && (targetUser.id === req.productionActor.id || isConfiguredAdmin(targetUser.email))) {
-      return res.status(400).json({ status: 'fail', message: 'Administrator accounts cannot be deactivated here.' });
+    const targetAssignments = await db.select({ moduleKey: moduleAssignments.moduleKey })
+      .from(moduleAssignments).where(eq(moduleAssignments.userId, targetUser.id));
+    const targetIsAdmin = isOwnerEmail(targetUser.email) || targetAssignments.some(({ moduleKey }) => moduleKey === ADMIN_ROLE)
+      || (isConfiguredAdmin(targetUser.email) && !targetAssignments.some(({ moduleKey }) => moduleKey === REVOKED_ADMIN_ROLE));
+    if (!req.body.isActive && target.id === req.productionActor.id) {
+      return res.status(400).json({ status: 'fail', message: 'You cannot deactivate your own account.' });
+    }
+    if (!req.body.isActive && isOwnerEmail(targetUser.email)) {
+      return res.status(400).json({ status: 'fail', message: 'The workspace owner cannot be deactivated here.' });
+    }
+    if (!req.body.isActive && targetIsAdmin && !req.productionActor.isOwner) {
+      return res.status(403).json({ status: 'fail', message: 'Only the workspace owner can deactivate an administrator.' });
     }
 
     await db.transaction(async (tx) => {
@@ -194,8 +270,15 @@ router.put('/settings/users/:userId/password', async (req, res) => {
     if (password.length < 8 || password.length > 128) {
       return res.status(400).json({ status: 'fail', message: 'Temporary password must be between 8 and 128 characters.' });
     }
-    const [targetUser] = await db.select({ id: user.id }).from(user).where(eq(user.id, req.params.userId));
+    const [targetUser] = await db.select({ id: user.id, email: user.email }).from(user).where(eq(user.id, req.params.userId));
     if (!targetUser) return res.status(404).json({ status: 'fail', message: 'User not found.' });
+    const targetAssignments = await db.select({ moduleKey: moduleAssignments.moduleKey })
+      .from(moduleAssignments).where(eq(moduleAssignments.userId, targetUser.id));
+    const targetIsAdmin = isOwnerEmail(targetUser.email) || targetAssignments.some(({ moduleKey }) => moduleKey === ADMIN_ROLE)
+      || (isConfiguredAdmin(targetUser.email) && !targetAssignments.some(({ moduleKey }) => moduleKey === REVOKED_ADMIN_ROLE));
+    if (targetIsAdmin && !req.productionActor.isOwner) {
+      return res.status(403).json({ status: 'fail', message: 'Only the workspace owner can reset an administrator password.' });
+    }
     const [credential] = await db.select({ id: account.id }).from(account)
       .where(and(eq(account.userId, targetUser.id), eq(account.providerId, 'credential')));
     if (!credential) return res.status(404).json({ status: 'fail', message: 'No password-based account was found for this user.' });
@@ -225,7 +308,10 @@ router.put('/settings/users/:userId/modules', async (req, res) => {
     if (!targetUser) return res.status(404).json({ status: 'fail', message: 'User not found.' });
 
     await db.transaction(async (tx) => {
-      await tx.delete(moduleAssignments).where(eq(moduleAssignments.userId, targetUser.id));
+      await tx.delete(moduleAssignments).where(and(
+        eq(moduleAssignments.userId, targetUser.id),
+        inArray(moduleAssignments.moduleKey, [...moduleKeys]),
+      ));
       if (modules.length > 0) {
         await tx.insert(moduleAssignments).values(modules.map((moduleKey) => ({
           id: randomUUID(),

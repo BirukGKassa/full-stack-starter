@@ -1,17 +1,17 @@
 import { randomUUID } from 'node:crypto';
 import { Router } from 'express';
-import { and, desc, eq, gt, inArray } from 'drizzle-orm';
+import { and, desc, eq, gt } from 'drizzle-orm';
 import { auth } from '../auth.js';
 import { db, dbType, pool, schema } from '../db/index.js';
 import { createLicense, getLicenseStatus } from '../system/license.js';
 import { getAdminSetupLink } from '../system/admin-setup.js';
+import { ADMIN_ROLE, getOwnerEmail, isConfiguredAdmin, isOwnerEmail, REVOKED_ADMIN_ROLE } from './v1/production/access.js';
 
 const router = Router();
-const adminEmails = new Set((process.env.LYU_ADMIN_EMAILS || '')
-  .split(',').map((email) => email.trim().toLowerCase()).filter(Boolean));
 const {
   companyProfiles,
   machineDowntimeLogs,
+  moduleAssignments,
   productionAuditLogs,
   session,
   systemEvents,
@@ -40,7 +40,20 @@ async function requireAdmin(req, res) {
     res.status(401).json({ status: 'fail', message: 'Sign in to continue.' });
     return null;
   }
-  if (!adminEmails.has(String(actor.email).toLowerCase())) {
+  const ownerEmail = getOwnerEmail();
+  const [owner] = ownerEmail
+    ? await db.select({ isActive: user.isActive }).from(user).where(eq(user.email, ownerEmail))
+    : [];
+  if (!owner?.isActive) {
+    res.status(403).json({ status: 'fail', message: 'An active workspace owner must be set up before users can access the dashboard.' });
+    return null;
+  }
+  const assignments = await db.select({ moduleKey: moduleAssignments.moduleKey })
+    .from(moduleAssignments).where(eq(moduleAssignments.userId, actor.id));
+  const roleKeys = new Set(assignments.map(({ moduleKey }) => moduleKey));
+  const isAdmin = isOwnerEmail(actor.email) || roleKeys.has(ADMIN_ROLE)
+    || (isConfiguredAdmin(actor.email) && !roleKeys.has(REVOKED_ADMIN_ROLE));
+  if (!isAdmin) {
     res.status(403).json({ status: 'fail', message: 'Administrator access is required.' });
     return null;
   }
@@ -86,22 +99,25 @@ async function publicCompany() {
 router.get('/api/public/system', async (req, res, next) => {
   try {
     const [company, license, actor] = await Promise.all([publicCompany(), getLicenseStatus(), getActor(req)]);
-    const configuredAdmins = [...adminEmails];
-    const existingAdmins = configuredAdmins.length
-      ? await db.select({ id: user.id }).from(user).where(
-          configuredAdmins.length === 1
-            ? eq(user.email, configuredAdmins[0])
-            : inArray(user.email, configuredAdmins),
-        )
+    const ownerEmail = getOwnerEmail();
+    const [ownerAccount] = ownerEmail
+      ? await db.select({ id: user.id, isActive: user.isActive }).from(user).where(eq(user.email, ownerEmail))
       : [];
+    const hasAdmin = Boolean(ownerAccount?.isActive);
     let adminSetupLink = null;
-    if (configuredAdmins.length && !existingAdmins.length && process.env.REGISTER_ADMIN_LINK) {
+    if (ownerEmail && !ownerAccount && process.env.REGISTER_ADMIN_LINK) {
       adminSetupLink = getAdminSetupLink();
     }
+    const actorAssignments = actor
+      ? await db.select({ moduleKey: moduleAssignments.moduleKey }).from(moduleAssignments).where(eq(moduleAssignments.userId, actor.id))
+      : [];
+    const actorRoles = new Set(actorAssignments.map(({ moduleKey }) => moduleKey));
     res.json({
       company,
       systemName: process.env.APP_NAME || 'Lyu ERP',
-      isAdmin: Boolean(actor && adminEmails.has(String(actor.email).toLowerCase())),
+      isAdmin: Boolean(actor && (isOwnerEmail(actor.email) || actorRoles.has(ADMIN_ROLE)
+        || (isConfiguredAdmin(actor.email) && !actorRoles.has(REVOKED_ADMIN_ROLE)))),
+      hasAdmin,
       adminSetupLink,
       license: {
         status: license.status,

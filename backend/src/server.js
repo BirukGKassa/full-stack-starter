@@ -5,10 +5,11 @@ import { randomUUID, createHash, timingSafeEqual } from 'node:crypto';
 import { toNodeHandler } from 'better-auth/node';
 import { auth } from './auth.js';
 import { db, pool, schema } from './db/index.js';
-import { eq, or } from 'drizzle-orm';
+import { eq } from 'drizzle-orm';
 import systemRoutes, { recordSystemEvent } from './routes/system.routes.js';
 import { startLicenseRefreshTimer } from './system/license.js';
 import { configuredAdminSetupToken } from './system/admin-setup.js';
+import { getOwnerEmail } from './routes/v1/production/access.js';
 
 
 import newsRoutes from "./routes/newsRoutes.js";
@@ -28,9 +29,6 @@ import { productionAccess } from "./routes/v1/production/access.js";
 const app = express();
 const PORT = Number(process.env.PORT || 3005);
 const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
-const adminEmails = new Set((process.env.LYU_ADMIN_EMAILS || '')
-  .split(',').map((email) => email.trim().toLowerCase()).filter(Boolean));
-
 function secureTokenMatch(candidate, configured) {
   if (!candidate || !configured) return false;
   const candidateHash = createHash('sha256').update(candidate).digest();
@@ -110,15 +108,15 @@ app.post('/api/bootstrap/admin', express.json(), async (req, res, next) => {
     const password = String(req.body.password || '');
     const setupToken = configuredAdminSetupToken();
     if (!secureTokenMatch(token, setupToken)) return res.status(403).json({ message: 'Administrator setup link is invalid.' });
-    if (adminEmails.size === 0) return res.status(503).json({ message: 'Set LYU_ADMIN_EMAILS before using initial administrator setup.' });
-    if (!adminEmails.has(email)) return res.status(403).json({ message: 'This email is not listed in LYU_ADMIN_EMAILS.' });
+    const ownerEmail = getOwnerEmail();
+    if (!ownerEmail) return res.status(503).json({ message: 'Set LYU_OWNER_EMAIL or LYU_ADMIN_EMAILS before using initial owner setup.' });
+    if (email !== ownerEmail) return res.status(403).json({ message: 'Initial setup must use the configured workspace owner email.' });
     if (name.length < 2 || name.length > 255 || !/^[a-z0-9_.]{3,30}$/.test(username) || password.length < 12 || password.length > 128) {
       return res.status(400).json({ message: 'Enter a valid name, username, and password of at least 12 characters.' });
     }
-    const existingAdmins = await db.select({ id: schema.user.id }).from(schema.user).where(or(
-      ...[...adminEmails].map((adminEmail) => eq(schema.user.email, adminEmail)),
-    ));
-    if (existingAdmins.length) return res.status(409).json({ message: 'Initial administrator setup has already been completed.' });
+    const [existingOwner] = await db.select({ id: schema.user.id }).from(schema.user)
+      .where(eq(schema.user.email, ownerEmail));
+    if (existingOwner) return res.status(409).json({ message: 'Initial owner setup has already been completed.' });
     const authContext = await auth.$context;
     const passwordHash = await authContext.password.hash(password);
     await db.transaction(async (tx) => {

@@ -5,8 +5,9 @@ export default function useAdminSettingsActions(state) {
   async function createUser(event) {
     event.preventDefault(); const element = event.currentTarget; const form = new FormData(element); setSaving(true);
     try {
-      await productionApi.createUser({ name: String(form.get('name')).trim(), username: String(form.get('username')).trim(), email: String(form.get('email')).trim(), employeeId: String(form.get('employeeId')).trim(), temporaryPassword: String(form.get('temporaryPassword')), modules: newModules });
-      element.reset(); setNewModules(['production']); setToast({ kind: 'success', message: 'User created and assigned to the selected modules.' }); await reload();
+      const isAdmin = form.get('isAdmin') === 'on';
+      await productionApi.createUser({ name: String(form.get('name')).trim(), username: String(form.get('username')).trim(), email: String(form.get('email')).trim(), employeeId: String(form.get('employeeId')).trim(), temporaryPassword: String(form.get('temporaryPassword')), modules: newModules, isAdmin });
+      element.reset(); setNewModules(['production']); setToast({ kind: 'success', message: isAdmin ? 'Administrator created and assigned to the selected modules.' : 'User created and assigned to the selected modules.' }); await reload();
     } catch (error) { setToast({ kind: 'error', message: error.message || 'Could not create account.' }); }
     finally { setSaving(false); }
   }
@@ -22,6 +23,15 @@ export default function useAdminSettingsActions(state) {
     catch (error) { setToast({ kind: 'error', message: error.message || 'Could not update account status.' }); }
     finally { setSaving(false); }
   }
+  async function toggleAdmin(account) {
+    setSaving(true);
+    try {
+      await productionApi.setUserAdmin(account.id, !account.isAdmin);
+      setToast({ kind: 'success', message: account.isAdmin ? `${account.name} is no longer an administrator.` : `${account.name} is now an administrator.` });
+      await reload();
+    } catch (error) { setToast({ kind: 'error', message: error.message || 'Could not update administrator role.' }); }
+    finally { setSaving(false); }
+  }
   async function resetPassword(event, account) {
     event.preventDefault(); setSaving(true);
     try {
@@ -30,5 +40,5 @@ export default function useAdminSettingsActions(state) {
     } catch (error) { setToast({ kind: 'error', message: error.message || 'Could not reset password.' }); }
     finally { setSaving(false); }
   }
-  return { createUser, saveAssignments, toggleActive, resetPassword };
+  return { createUser, saveAssignments, toggleActive, toggleAdmin, resetPassword };
 }

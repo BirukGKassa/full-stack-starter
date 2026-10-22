@@ -1,5 +1,5 @@
 import { randomUUID } from 'node:crypto';
-import { eq } from 'drizzle-orm';
+import { and, eq } from 'drizzle-orm';
 import { auth } from '../../../auth.js';
 import { db, schema } from '../../../db/index.js';
 import { getLicenseStatus } from '../../../system/license.js';
@@ -37,6 +37,16 @@ const adminEmails = new Set(
     .map((email) => email.trim().toLowerCase())
     .filter(Boolean),
 );
+export const ADMIN_ROLE = '__admin__';
+export const REVOKED_ADMIN_ROLE = '__admin_revoked__';
+
+export function getOwnerEmail() {
+  return String(process.env.LYU_OWNER_EMAIL || [...adminEmails][0] || '').trim().toLowerCase();
+}
+
+export function isOwnerEmail(email) {
+  return String(email || '').trim().toLowerCase() === getOwnerEmail();
+}
 
 function requestHeaders(req) {
   const headers = new Headers();
@@ -65,12 +75,26 @@ export async function productionAccess(req, res, next) {
       return res.status(401).json({ status: 'fail', message: 'Sign in to access production operations.' });
     }
 
+    const ownerEmail = getOwnerEmail();
+    const [owner] = ownerEmail
+      ? await db.select({ id: user.id }).from(user)
+        .where(and(eq(user.email, ownerEmail), eq(user.isActive, true)))
+      : [];
+    if (!owner) {
+      return res.status(403).json({ status: 'fail', code: 'ADMIN_REQUIRED', message: 'An active workspace owner must be set up before users can access the dashboard.' });
+    }
+
     const [accountUser] = await db.select({ isActive: user.isActive }).from(user).where(eq(user.id, session.user.id));
     if (!accountUser?.isActive) {
       return res.status(403).json({ status: 'fail', message: 'This account is inactive. Contact an administrator.' });
     }
 
-    const isAdmin = adminEmails.has(session.user.email.toLowerCase());
+    const assignments = await db.select({ moduleKey: moduleAssignments.moduleKey })
+      .from(moduleAssignments).where(eq(moduleAssignments.userId, session.user.id));
+    const assignmentKeys = new Set(assignments.map(({ moduleKey }) => moduleKey));
+    const isOwner = isOwnerEmail(session.user.email);
+    const isAdmin = isOwner || assignmentKeys.has(ADMIN_ROLE)
+      || (adminEmails.has(session.user.email.toLowerCase()) && !assignmentKeys.has(REVOKED_ADMIN_ROLE));
     const [first] = pathParts(req);
     const isAccessCheck = first === 'access';
     const isSettings = first === 'settings';
@@ -83,10 +107,8 @@ export async function productionAccess(req, res, next) {
     let assignedModules = [];
 
     if (!isAdmin) {
-      const assignments = await db.select({ moduleKey: moduleAssignments.moduleKey })
-        .from(moduleAssignments)
-        .where(eq(moduleAssignments.userId, session.user.id));
-      assignedModules = assignments.map((assignment) => assignment.moduleKey);
+      assignedModules = assignments.map((assignment) => assignment.moduleKey)
+        .filter((moduleKey) => moduleKey !== ADMIN_ROLE && moduleKey !== REVOKED_ADMIN_ROLE);
 
       if (!isAccessCheck && (isSettings || (isAudit && assignedModules.length === 0))) {
         return res.status(403).json({ status: 'fail', message: 'Administrator access is required.' });
@@ -110,6 +132,7 @@ export async function productionAccess(req, res, next) {
       email: session.user.email,
       username: session.user.username || null,
       isAdmin,
+      isOwner,
       modules: isAdmin ? availableModules.map(({ key }) => key) : assignedModules,
       license,
     };
@@ -156,5 +179,5 @@ export async function productionAccess(req, res, next) {
 }
 
 export function isConfiguredAdmin(email) {
-  return adminEmails.has(String(email || '').toLowerCase());
+  return adminEmails.has(String(email || '').trim().toLowerCase());
 }

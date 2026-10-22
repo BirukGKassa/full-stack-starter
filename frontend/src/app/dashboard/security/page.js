@@ -59,7 +59,7 @@ export default function SecurityPage() {
     finally { setSaving(false); }
   }
 
-  if (isPending) return <div className="page-loading">Checking your account…</div>;
+  if (isPending) return <div className="min-h-[60vh] grid place-content-center text-center text-[#718078] text-[13px] font-['DM_Mono'] [&_span]:text-[#91aa55] [&_span]:text-[22px] [&_span]:mt-[10px]">Checking your account…</div>;
   if (!session?.user) return <Navigate to="/go" replace />;
   return <SecurityContent error={error} message={message} saving={saving} sessions={sessions} loading={loading} onPasswordChange={changePassword} onRefresh={reload} onRevoke={revokeSession} />;
 }
