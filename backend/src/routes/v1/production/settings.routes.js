@@ -1,6 +1,6 @@
 import { randomUUID } from 'node:crypto';
 import { Router } from 'express';
-import { and, desc, eq, inArray } from 'drizzle-orm';
+import { and, desc, eq, inArray, notInArray } from 'drizzle-orm';
 import { auth } from '../../../auth.js';
 import { db, schema } from '../../../db/index.js';
 import { ADMIN_ROLE, isConfiguredAdmin, isOwnerEmail, REVOKED_ADMIN_ROLE } from './access.js';
@@ -67,7 +67,7 @@ router.get('/settings/users', async (req, res) => {
       }
       sessionSummary.set(item.userId, summary);
     }
-    const assignments = allAssignments.filter(({ moduleKey }) => moduleKey !== ADMIN_ROLE && moduleKey !== REVOKED_ADMIN_ROLE);
+    const assignments = allAssignments.filter(({ moduleKey }) => moduleKeys.has(moduleKey));
     const roles = new Map();
     for (const { userId, moduleKey } of allAssignments) {
       const role = roles.get(userId) || new Set();
@@ -310,7 +310,7 @@ router.put('/settings/users/:userId/modules', async (req, res) => {
     await db.transaction(async (tx) => {
       await tx.delete(moduleAssignments).where(and(
         eq(moduleAssignments.userId, targetUser.id),
-        inArray(moduleAssignments.moduleKey, [...moduleKeys]),
+        notInArray(moduleAssignments.moduleKey, [ADMIN_ROLE, REVOKED_ADMIN_ROLE]),
       ));
       if (modules.length > 0) {
         await tx.insert(moduleAssignments).values(modules.map((moduleKey) => ({

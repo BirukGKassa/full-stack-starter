@@ -6,6 +6,7 @@ import { getLicenseStatus } from '../../../system/license.js';
 import { availableModules } from './modules.js';
 
 const { moduleAssignments, productionAuditLogs, user } = schema;
+const availableModuleKeys = new Set(availableModules.map(({ key }) => key));
 
 const routeModules = {
   boms: 'products',
@@ -108,7 +109,7 @@ export async function productionAccess(req, res, next) {
 
     if (!isAdmin) {
       assignedModules = assignments.map((assignment) => assignment.moduleKey)
-        .filter((moduleKey) => moduleKey !== ADMIN_ROLE && moduleKey !== REVOKED_ADMIN_ROLE);
+        .filter((moduleKey) => availableModuleKeys.has(moduleKey));
 
       if (!isAccessCheck && (isSettings || (isAudit && assignedModules.length === 0))) {
         return res.status(403).json({ status: 'fail', message: 'Administrator access is required.' });

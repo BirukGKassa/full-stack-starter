@@ -1,8 +1,30 @@
 export default function LicenseHistory({ items, loading, onRetry, formatDate }) {
   if (!items.length) return null;
-  return <div className="w-[100%] overflow-x-auto"><table className="w-[100%] border-collapse text-left whitespace-nowrap [&_th]:py-[9px] px-[9px] [&_th]:border-b border-b-[#e9ede7] [&_th]:text-[#96a097] [&_th]:font-bold [&_th]:text-[8px] [&_th]:font-['DM_Mono',_monospace] [&_th]:tracking-[.4px] [&_th]:uppercase [&_td]:py-[11px] px-[9px] [&_td]:border-b border-b-[#f0f2ee] [&_td]:text-[#516156] [&_td]:text-[9px] [&_tbody_tr:last-child_td]:border-b-[0] [&_tbody_tr:hover]:bg-[#fbfcf9] dark:[&_th]:border-[#334237] dark:[&_th]:text-[#9aa99d] dark:[&_td]:border-[#29372d] dark:[&_td]:text-[#c1cec3] dark:[&_tbody_tr:hover]:bg-[#1d2b22] [&_th]:text-[9px] [&_td]:text-[11px]"><thead><tr><th>Key suffix</th><th>Status</th><th>Activated</th><th>Expires</th><th>Added</th><th>Action</th></tr></thead><tbody>{items.map((item) => <tr key={item.id}>
-    <td>•••• {item.keyLastFour}</td><td><span className={`inline-flex flex-[0_0_auto] items-center gap-1.5 py-[5px] px-[9px] rounded-full text-[10px] font-bold [&::before]:w-[7px] [&::before]:h-[7px] [&::before]:rounded-full [&::before]:bg-[currentColor] [&::before]:content-[''] ${item.status === 'active' ? 'bg-[#edf6eb] text-[#3f7a48] dark:bg-[#253b2a] dark:text-[#acd3a4]' : 'bg-[#fbefeb] text-[#a45040] dark:bg-[#402c28] dark:text-[#e6ad9e]'}`}>{item.status}</span></td>
-    <td>{formatDate(item.activatedAt)}</td><td>{formatDate(item.expiresAt)}</td><td>{formatDate(item.createdAt)}</td>
-    <td>{item.status === 'pending' && <button className="border-0 bg-transparent text-[#557d55] text-[9px] font-bold cursor-pointer whitespace-nowrap [&:hover]:text-[#234f34] [&:hover]:underline" type="button" onClick={onRetry} disabled={loading}>{loading ? 'Checking…' : 'Retry activation'}</button>}</td>
-  </tr>)}</tbody></table></div>;
+  return (
+    <section className="space-y-3 border-t border-[#e4e4e7] pt-5 dark:border-[#3f3f46]">
+      <div className="space-y-1">
+        <h3 className="text-sm font-semibold text-[#18181b] dark:text-[#fafafa]">License history</h3>
+        <p className="text-sm text-[#71717a] dark:text-[#a1a1aa]">Recent activation and renewal records.</p>
+      </div>
+      <div className="w-full overflow-x-auto">
+        <table className="w-full border-collapse text-left text-sm">
+          <thead className="text-xs text-[#71717a] dark:text-[#a1a1aa]"><tr>
+            {['Key suffix', 'Status', 'Activated', 'Expires', 'Added', 'Action'].map((heading) => <th className="border-b border-[#e4e4e7] px-3 py-2.5 font-medium dark:border-[#3f3f46]" key={heading}>{heading}</th>)}
+          </tr></thead>
+          <tbody className="text-[#3f3f46] dark:text-[#d4d4d8]">{items.map((item) => {
+            return (
+              <tr className="border-b border-[#f4f4f5] dark:border-[#27272a]" key={item.id}>
+                <td className="px-3 py-3">•••• {item.keyLastFour}</td>
+                <td className="px-3 py-3"><span className={`rounded-full px-2.5 py-1 text-xs font-medium capitalize ${item.status === 'active' ? 'bg-[#f0fdf4] text-[#166534] dark:bg-[#052e16] dark:text-[#bbf7d0]' : item.status === 'pending' ? 'bg-[#fefce8] text-[#854d0e] dark:bg-[#422006] dark:text-[#fef08a]' : 'bg-[#f4f4f5] text-[#52525b] dark:bg-[#27272a] dark:text-[#d4d4d8]'}`}>{item.status}</span></td>
+                <td className="px-3 py-3">{formatDate(item.activatedAt)}</td>
+                <td className="px-3 py-3">{formatDate(item.expiresAt)}</td>
+                <td className="px-3 py-3">{formatDate(item.createdAt)}</td>
+                <td className="px-3 py-3">{item.status === 'pending' && <button className="font-medium text-[#52525b] underline-offset-4 hover:underline disabled:opacity-50 dark:text-[#d4d4d8]" type="button" onClick={onRetry} disabled={loading}>{loading ? 'Checking…' : 'Retry activation'}</button>}</td>
+              </tr>
+            );
+          })}</tbody>
+        </table>
+      </div>
+    </section>
+  );
 }

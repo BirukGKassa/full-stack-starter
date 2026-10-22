@@ -1,3 +1,223 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+:root {
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.153 0.006 107.1);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.153 0.006 107.1);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.153 0.006 107.1);
+  --primary: oklch(0.228 0.013 107.4);
+  --primary-foreground: oklch(0.988 0.003 106.5);
+  --secondary: oklch(0.966 0.005 106.5);
+  --secondary-foreground: oklch(0.228 0.013 107.4);
+  --muted: oklch(0.966 0.005 106.5);
+  --muted-foreground: oklch(0.58 0.031 107.3);
+  --accent: oklch(0.966 0.005 106.5);
+  --accent-foreground: oklch(0.228 0.013 107.4);
+  --destructive: oklch(0.577 0.245 27.325);
+  --border: oklch(0.93 0.007 106.5);
+  --input: oklch(0.93 0.007 106.5);
+  --ring: oklch(0.737 0.021 106.9);
+  --chart-1: oklch(0.88 0.011 106.6);
+  --chart-2: oklch(0.58 0.031 107.3);
+  --chart-3: oklch(0.466 0.025 107.3);
+  --chart-4: oklch(0.394 0.023 107.4);
+  --chart-5: oklch(0.286 0.016 107.4);
+  --radius: 0.625rem;
+  --sidebar: oklch(0.988 0.003 106.5);
+  --sidebar-foreground: oklch(0.153 0.006 107.1);
+  --sidebar-primary: oklch(0.228 0.013 107.4);
+  --sidebar-primary-foreground: oklch(0.988 0.003 106.5);
+  --sidebar-accent: oklch(0.966 0.005 106.5);
+  --sidebar-accent-foreground: oklch(0.228 0.013 107.4);
+  --sidebar-border: oklch(0.93 0.007 106.5);
+  --sidebar-ring: oklch(0.737 0.021 106.9);
+}
+
+.dark {
+  --background: oklch(0.153 0.006 107.1);
+  --foreground: oklch(0.988 0.003 106.5);
+  --card: oklch(0.228 0.013 107.4);
+  --card-foreground: oklch(0.988 0.003 106.5);
+  --popover: oklch(0.228 0.013 107.4);
+  --popover-foreground: oklch(0.988 0.003 106.5);
+  --primary: oklch(0.93 0.007 106.5);
+  --primary-foreground: oklch(0.228 0.013 107.4);
+  --secondary: oklch(0.286 0.016 107.4);
+  --secondary-foreground: oklch(0.988 0.003 106.5);
+  --muted: oklch(0.286 0.016 107.4);
+  --muted-foreground: oklch(0.737 0.021 106.9);
+  --accent: oklch(0.286 0.016 107.4);
+  --accent-foreground: oklch(0.988 0.003 106.5);
+  --destructive: oklch(0.704 0.191 22.216);
+  --border: oklch(1 0 0 / 10%);
+  --input: oklch(1 0 0 / 15%);
+  --ring: oklch(0.58 0.031 107.3);
+  --chart-1: oklch(0.88 0.011 106.6);
+  --chart-2: oklch(0.58 0.031 107.3);
+  --chart-3: oklch(0.466 0.025 107.3);
+  --chart-4: oklch(0.394 0.023 107.4);
+  --chart-5: oklch(0.286 0.016 107.4);
+  --sidebar: oklch(0.228 0.013 107.4);
+  --sidebar-foreground: oklch(0.988 0.003 106.5);
+  --sidebar-primary: oklch(0.488 0.243 264.376);
+  --sidebar-primary-foreground: oklch(0.988 0.003 106.5);
+  --sidebar-accent: oklch(0.286 0.016 107.4);
+  --sidebar-accent-foreground: oklch(0.988 0.003 106.5);
+  --sidebar-border: oklch(1 0 0 / 10%);
+  --sidebar-ring: oklch(0.58 0.031 107.3);
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  html {
+    color-scheme: light;
+    scroll-behavior: smooth;
+  }
+
+  html.dark {
+    color-scheme: dark;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-family: "DM Sans", ui-sans-serif, system-ui, sans-serif;
+    font-synthesis: none;
+    text-rendering: optimizeLegibility;
+  }
+
+  button,
+  input,
+  select,
+  textarea {
+    font: inherit;
+  }
+
+  input:not([type="checkbox"]):not([type="radio"]),
+  select,
+  textarea {
+    border-color: var(--input);
+    border-radius: calc(var(--radius) - 2px);
+  }
+
+  input:not([type="checkbox"]):not([type="radio"]):focus,
+  select:focus,
+  textarea:focus {
+    border-color: var(--ring);
+    outline: none !important;
+    box-shadow: none !important;
+  }
+
+  button:focus-visible,
+  a:focus-visible,
+  summary:focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+  }
+}
+
+@layer components {
+  .shadcn-card {
+    @apply rounded-xl border bg-card text-card-foreground shadow-sm;
+  }
+}
+
+[class*="bg-[#fffefa]"],
+[class*="bg-[#fbfcf9]"],
+[class*="bg-[#fafcf9]"] {
+  background-color: var(--card) !important;
+}
+
+[class*="border-[#e6ebe4]"],
+[class*="border-[#e5eae3]"],
+[class*="border-[#e7ebe4]"],
+[class*="border-[#edf0eb]"],
+[class*="border-[#edf0ea]"] {
+  border-color: var(--border) !important;
+}
+
+[class*="rounded-[5px]"],
+[class*="rounded-[7px]"],
+[class*="rounded-[11px]"] {
+  border-radius: var(--radius) !important;
+}
+
+[class*="bg-[#f5f7f2]"],
+[class*="bg-[#f5f7f4]"],
+[class*="bg-[#f7f8f3]"],
+[class*="bg-[#edf2e9]"],
+[class*="bg-[#fbfdf9]"] {
+  background-color: var(--background) !important;
+}
+
+[class*="dark:bg-[#19251e]"],
+[class*="dark:bg-[#18241c]"],
+[class*="dark:bg-[#151f19]"],
+[class*="dark:bg-[#1d2a22]"],
+[class*="dark:bg-[#17221b]"] {
+  background-color: var(--card) !important;
+}
+
+[class*="bg-[#174835]"],
+[class*="bg-[#153f33]"],
+[class*="bg-[#163e33]"],
+[class*="bg-[#173d2b]"] {
+  background-color: var(--primary) !important;
+  color: var(--primary-foreground) !important;
+}
+
+[class*="bg-[#edf4e8]"],
+[class*="bg-[#eaf2e6]"],
+[class*="bg-[#f1f5ee]"],
+[class*="bg-[#f3f7f0]"] {
+  background-color: var(--secondary) !important;
+}
+
+[class*="text-[#1d3d2b]"],
+[class*="text-[#254b37]"],
+[class*="text-[#285638]"],
+[class*="text-[#2a4433]"],
+[class*="text-[#2f4b37]"],
+[class*="text-[#31463a]"],
+[class*="text-[#334b39]"],
+[class*="text-[#3b5143]"],
+[class*="text-[#3c5242]"],
+[class*="text-[#3f6747]"],
+[class*="text-[#425b48]"],
+[class*="text-[#455b49]"],
+[class*="text-[#52675a]"],
+[class*="text-[#536658]"],
+[class*="text-[#57705a]"],
+[class*="text-[#607065]"] {
+  color: var(--foreground) !important;
+}
+
+[class*="text-[#718077]"],
+[class*="text-[#718075]"],
+[class*="text-[#748176]"],
+[class*="text-[#76877d]"],
+[class*="text-[#78877c]"],
+[class*="text-[#7d8c80]"],
+[class*="text-[#839087]"],
+[class*="text-[#869287]"],
+[class*="text-[#89968d]"],
+[class*="text-[#8b978d]"],
+[class*="text-[#929d93]"],
+[class*="text-[#9aa59c]"],
+[class*="text-[#a1aaa2]"] {
+  color: var(--muted-foreground) !important;
+}
+
+[class*="border-[#e0e7df]"],
+[class*="border-[#dfe6dd]"],
+[class*="border-[#e2e8df]"],
+[class*="border-[#e2e9df]"],
+[class*="border-[#e3e9e1]"] {
+  border-color: var(--border) !important;
+}

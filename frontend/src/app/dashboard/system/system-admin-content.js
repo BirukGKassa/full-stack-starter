@@ -6,17 +6,46 @@ import SystemOverview from './system-overview.js';
 
 export default function SystemAdminContent({ state, actions }) {
   const license = state.licenseData?.license;
-  return <>
-    <div className="group/erp-dashboard-top flex items-center justify-between gap-[18px] pb-[16px] border-b border-b-[#e7ebe4] max-[760px]:items-start max-[760px]:flex-col dark:border-[#334237] [&_>_div:first-child_>_p:last-child]:text-[11px] [.group\/erp-system-page_&_>_div:last-child]:flex [.group\/erp-system-page_&_>_div:last-child]:gap-2 max-[760px]:[.group\/erp-system-page_&]:items-start max-[760px]:[.group\/erp-system-page_&]:flex-col max-[760px]:[.group\/erp-system-page_&_>_div:last-child]:flex-wrap">
-      <div><Brand /><p className="mt-0 mx-0 mb-2.5 text-[#829183] font-bold text-[9px] font-['DM_Mono',_monospace] tracking-[1px] [.group\/erp-dashboard-top_&]:m-0 text-[10px]">LYU ERP · ADMIN CONSOLE</p><p>Company, license, and system operations</p></div>
-      <div><Link className="group/prod-button min-h-[37px] inline-flex items-center justify-center gap-[7px] py-0 px-3.5 border border-transparent rounded-[7px] text-[10px] font-bold cursor-pointer transition-[background,color,border] duration-150 [&:disabled]:opacity-[.55] [&:disabled]:cursor-wait [.group\/prod-modal-form_&]:justify-self-end max-[480px]:[.group\/prod-form-actions_&]:w-[100%] [.group\/prod-managed-actions_&]:min-h-[34px] [.group\/prod-managed-actions_&]:py-0 px-[11px] [.group\/prod-managed-actions_&]:rounded-lg [.group\/prod-managed-actions_&]:text-[10px] border-[#dfe6dd] bg-white text-[#52675a] [&:hover:not(:disabled)]:border-[#b8cdb0] [&:hover:not(:disabled)]:text-[#315b3a] dark:border-[#3a4a3e] dark:bg-[#1d2a22] dark:text-[#cad8cb] dark:[&:hover:not(:disabled)]:border-[#617c61] dark:[&:hover:not(:disabled)]:text-[#e0ecdb]" to="/dashboard">← Dashboard</Link><Link className="group/prod-button min-h-[37px] inline-flex items-center justify-center gap-[7px] py-0 px-3.5 border border-transparent rounded-[7px] text-[10px] font-bold cursor-pointer transition-[background,color,border] duration-150 [&:disabled]:opacity-[.55] [&:disabled]:cursor-wait [.group\/prod-modal-form_&]:justify-self-end max-[480px]:[.group\/prod-form-actions_&]:w-[100%] [.group\/prod-managed-actions_&]:min-h-[34px] [.group\/prod-managed-actions_&]:py-0 px-[11px] [.group\/prod-managed-actions_&]:rounded-lg [.group\/prod-managed-actions_&]:text-[10px] border-[#dfe6dd] bg-white text-[#52675a] [&:hover:not(:disabled)]:border-[#b8cdb0] [&:hover:not(:disabled)]:text-[#315b3a] dark:border-[#3a4a3e] dark:bg-[#1d2a22] dark:text-[#cad8cb] dark:[&:hover:not(:disabled)]:border-[#617c61] dark:[&:hover:not(:disabled)]:text-[#e0ecdb]" to="/dashboard/settings">User access</Link></div>
+  return (
+    <div className="mx-auto w-full max-w-6xl space-y-8">
+      <header className="flex flex-wrap items-center justify-between gap-4 border-b border-[#e4e4e7] pb-5 dark:border-[#27272a]">
+        <div className="space-y-2">
+          <Brand />
+          <p className="text-sm text-[#71717a] dark:text-[#a1a1aa]">Workspace administration</p>
+        </div>
+        <nav className="flex flex-wrap gap-1" aria-label="System navigation">
+          <Link className="rounded-md px-3 py-2 text-sm font-medium text-[#52525b] transition-colors hover:bg-[#f4f4f5] hover:text-[#18181b] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#a1a1aa] dark:text-[#a1a1aa] dark:hover:bg-[#27272a] dark:hover:text-[#fafafa]" to="/dashboard">Dashboard</Link>
+          <Link className="rounded-md px-3 py-2 text-sm font-medium text-[#52525b] transition-colors hover:bg-[#f4f4f5] hover:text-[#18181b] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#a1a1aa] dark:text-[#a1a1aa] dark:hover:bg-[#27272a] dark:hover:text-[#fafafa]" to="/dashboard/settings">User access</Link>
+        </nav>
+      </header>
+      <section className="space-y-2">
+        <p className="text-sm font-medium text-[#71717a] dark:text-[#a1a1aa]">System settings</p>
+        <h1 className="text-3xl font-semibold tracking-tight text-[#18181b] dark:text-[#fafafa]">Workspace administration</h1>
+        <p className="max-w-2xl text-sm leading-6 text-[#71717a] dark:text-[#a1a1aa]">
+          Manage licensing, company details, system health, and recent activity from one place.
+        </p>
+      </section>
+      <nav className="flex flex-wrap gap-1 border-b border-[#e4e4e7] pb-3 dark:border-[#27272a]" aria-label="Settings sections">
+        <a className="rounded-md px-3 py-2 text-sm font-medium text-[#52525b] transition-colors hover:bg-[#f4f4f5] hover:text-[#18181b] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#a1a1aa] dark:text-[#a1a1aa] dark:hover:bg-[#27272a] dark:hover:text-[#fafafa]" href="#license">License</a>
+        {license?.isActive && <>
+          <a className="rounded-md px-3 py-2 text-sm font-medium text-[#52525b] transition-colors hover:bg-[#f4f4f5] hover:text-[#18181b] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#a1a1aa] dark:text-[#a1a1aa] dark:hover:bg-[#27272a] dark:hover:text-[#fafafa]" href="#company">Company</a>
+          <a className="rounded-md px-3 py-2 text-sm font-medium text-[#52525b] transition-colors hover:bg-[#f4f4f5] hover:text-[#18181b] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#a1a1aa] dark:text-[#a1a1aa] dark:hover:bg-[#27272a] dark:hover:text-[#fafafa]" href="#system-health">System health</a>
+        </>}
+      </nav>
+      {state.error && <section className="rounded-lg border border-[#fecaca] bg-[#fef2f2] p-4 text-sm text-[#991b1b] dark:border-[#7f1d1d] dark:bg-[#450a0a] dark:text-[#fecaca]" role="alert">
+        <strong className="font-medium">Could not load all system data</strong>
+        <p className="mt-1">{state.error}</p>
+        <button className="mt-2 font-medium underline underline-offset-4" onClick={state.reload}>Retry</button>
+      </section>}
+      <LicensePanel license={license} licenseData={state.licenseData} loading={state.loading} licenseKey={state.licenseKey} onKeyChange={state.setLicenseKey} onRefresh={actions.refreshLicense} onSubmit={actions.addLicense} />
+      {license?.isActive && <>
+        <section id="company" className="scroll-mt-6">
+          <CompanyProfile company={state.company} loading={state.loading} onChange={state.setCompany} onSubmit={actions.saveCompany} />
+        </section>
+        <section id="system-health" className="scroll-mt-6">
+          <SystemOverview overview={state.overview} loading={state.loading} onRefresh={state.reload} onRevoke={actions.revokeUserSessions} />
+        </section>
+      </>}
     </div>
-    <div className="[&_>_p:last-child]:text-[#839087] [&_>_p:last-child]:text-[11px] mt-[15px] mx-0 mb-[23px] [&_h1]:m-0 [&_h1]:text-[#1d3d2b] [&_h1]:font-semibold [&_h1]:text-[clamp(27px,_3vw,_36px)] [&_h1]:leading-[1.12] [&_h1]:font-['Manrope',_sans-serif] [&_h1]:tracking-[-1.5px] [&_>_p:last-child]:mt-2 mx-0 mb-0 dark:[&_h1]:text-[#d9e8d9] dark:[&_>_p:last-child]:text-[#a0aea3] [.group\/erp-system-page_&]:mt-2.5 mx-0 mb-0"><p className="mt-0 mx-0 mb-2.5 text-[#829183] font-bold text-[9px] font-['DM_Mono',_monospace] tracking-[1px] [.group\/erp-dashboard-top_&]:m-0 text-[10px]">SYSTEM ADMINISTRATION</p><h1>ERP operations</h1><p>Company identity, licensing, system health, events, downtime, and session management.</p></div>
-    {state.error && <section className="min-w-0 p-[18px] border border-[#e6ebe4] rounded-lg bg-[#fffefa] max-[760px]:p-3.5 dark:border-[#2d3d32] dark:bg-[#19251e] dark:text-[#cbd8cd] mt-[14px] border-[#f0d3c9] bg-[#fff8f5] [&_strong]:text-[#a04f3d] [&_strong]:text-[11px] [&_p]:text-[#906e65] [&_p]:text-[9px] [&_p]:leading-[1.7] dark:border-[#594139] dark:bg-[#2a211d] dark:[&_strong]:text-[#e8b5a6] dark:[&_p]:text-[#c0a398]"><strong>Could not load all system data</strong><p>{state.error}</p><button className="border-0 bg-transparent text-[#557d55] text-[9px] font-bold cursor-pointer whitespace-nowrap [&:hover]:text-[#234f34] [&:hover]:underline" onClick={state.reload}>Retry</button></section>}
-    <LicensePanel license={license} licenseData={state.licenseData} loading={state.loading} licenseKey={state.licenseKey} onKeyChange={state.setLicenseKey} onRefresh={actions.refreshLicense} onSubmit={actions.addLicense} />
-    {license?.isActive && <>
-      <CompanyProfile company={state.company} loading={state.loading} onChange={state.setCompany} onSubmit={actions.saveCompany} />
-      <SystemOverview overview={state.overview} loading={state.loading} onRefresh={state.reload} onRevoke={actions.revokeUserSessions} />
-    </>}
-  </>;
+  );
 }

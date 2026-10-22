@@ -4,11 +4,15 @@ import Brand from '../../components/brand.js';
 export default function SettingsHeader() {
   return (
     <>
-      <div className="group/erp-dashboard-top flex items-center justify-between gap-[18px] pb-[16px] border-b border-b-[#e7ebe4] max-[760px]:items-start max-[760px]:flex-col dark:border-[#334237] [&_>_div:first-child_>_p:last-child]:text-[11px] [.group\/erp-system-page_&_>_div:last-child]:flex [.group\/erp-system-page_&_>_div:last-child]:gap-2 max-[760px]:[.group\/erp-system-page_&]:items-start max-[760px]:[.group\/erp-system-page_&]:flex-col max-[760px]:[.group\/erp-system-page_&_>_div:last-child]:flex-wrap">
-        <div><Brand /><p className="mt-0 mx-0 mb-2.5 text-[#829183] font-bold text-[9px] font-['DM_Mono',_monospace] tracking-[1px] [.group\/erp-dashboard-top_&]:m-0 text-[10px]">LYU ERP · ADMINISTRATION</p><p>System access and accounts</p></div>
-        <Link className="group/prod-button min-h-[37px] inline-flex items-center justify-center gap-[7px] py-0 px-3.5 border border-transparent rounded-[7px] text-[10px] font-bold cursor-pointer transition-[background,color,border] duration-150 [&:disabled]:opacity-[.55] [&:disabled]:cursor-wait [.group\/prod-modal-form_&]:justify-self-end max-[480px]:[.group\/prod-form-actions_&]:w-[100%] [.group\/prod-managed-actions_&]:min-h-[34px] [.group\/prod-managed-actions_&]:py-0 px-[11px] [.group\/prod-managed-actions_&]:rounded-lg [.group\/prod-managed-actions_&]:text-[10px] border-[#dfe6dd] bg-white text-[#52675a] [&:hover:not(:disabled)]:border-[#b8cdb0] [&:hover:not(:disabled)]:text-[#315b3a] dark:border-[#3a4a3e] dark:bg-[#1d2a22] dark:text-[#cad8cb] dark:[&:hover:not(:disabled)]:border-[#617c61] dark:[&:hover:not(:disabled)]:text-[#e0ecdb]" to="/dashboard">← Dashboard</Link>
+      <div className="flex flex-wrap items-center justify-between gap-4 border-b border-[#e4e4e7] pb-5 dark:border-[#27272a]">
+        <div className="space-y-2"><Brand /><p className="text-sm text-[#71717a] dark:text-[#a1a1aa]">Administration and workspace access</p></div>
+        <Link className="inline-flex h-9 items-center justify-center rounded-md border border-[#e4e4e7] bg-white px-3 text-sm font-medium text-[#18181b] transition-colors hover:bg-[#f4f4f5] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#a1a1aa] dark:border-[#3f3f46] dark:bg-[#18181b] dark:text-[#fafafa] dark:hover:bg-[#27272a]" to="/dashboard">← Dashboard</Link>
       </div>
-      <div className="[&_>_p:last-child]:text-[#839087] [&_>_p:last-child]:text-[11px] mt-[15px] mx-0 mb-[23px] [&_h1]:m-0 [&_h1]:text-[#1d3d2b] [&_h1]:font-semibold [&_h1]:text-[clamp(27px,_3vw,_36px)] [&_h1]:leading-[1.12] [&_h1]:font-['Manrope',_sans-serif] [&_h1]:tracking-[-1.5px] [&_>_p:last-child]:mt-2 mx-0 mb-0 dark:[&_h1]:text-[#d9e8d9] dark:[&_>_p:last-child]:text-[#a0aea3] [.group\/erp-system-page_&]:mt-2.5 mx-0 mb-0"><p className="mt-0 mx-0 mb-2.5 text-[#829183] font-bold text-[9px] font-['DM_Mono',_monospace] tracking-[1px] [.group\/erp-dashboard-top_&]:m-0 text-[10px]">ADMINISTRATION · ACCESS CONTROL</p><h1>System settings</h1><p>Create accounts, assign production modules, and manage account access.</p></div>
+      <div className="space-y-2">
+        <p className="text-sm font-medium text-[#71717a] dark:text-[#a1a1aa]">Administration</p>
+        <h1 className="text-3xl font-semibold tracking-tight text-[#18181b] dark:text-[#fafafa]">User access</h1>
+        <p className="max-w-2xl text-sm leading-6 text-[#71717a] dark:text-[#a1a1aa]">Create accounts, assign implemented production tasks, and manage workspace access.</p>
+      </div>
     </>
   );
 }

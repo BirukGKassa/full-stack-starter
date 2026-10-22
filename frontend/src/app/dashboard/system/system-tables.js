@@ -5,12 +5,16 @@ function dateTime(value) {
 }
 
 export default function SystemTables({ overview, loading, onRefresh, onRevoke }) {
-  const sessions = overview.sessions.map((item) => ({ id: item.id, cells: [item.userName, dateTime(item.createdAt), dateTime(item.updatedAt), dateTime(item.expiresAt), item.userAgent || item.ipAddress || 'Unknown device', <button className="border-0 bg-transparent text-[#557d55] text-[9px] font-bold cursor-pointer whitespace-nowrap [&:hover]:text-[#234f34] [&:hover]:underline text-[#a34e3e]" disabled={loading} onClick={() => onRevoke(item.userId, item.userName)}>Revoke all</button>] }));
+  const sessions = overview.sessions.map((item) => ({
+    id: item.id,
+    cells: [item.userName, dateTime(item.createdAt), dateTime(item.updatedAt), dateTime(item.expiresAt), item.userAgent || item.ipAddress || 'Unknown device',
+      <button className="font-medium text-[#b91c1c] underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#a1a1aa] dark:text-[#fecaca]" disabled={loading} onClick={() => onRevoke(item.userId, item.userName)}>Revoke all</button>],
+  }));
   const errors = overview.errors.map((item) => ({ id: item.id, cells: [dateTime(item.createdAt), item.level, item.category, item.message, item.statusCode || '—', item.path || '—'] }));
   const activity = overview.activity.map((item) => ({ id: item.id, cells: [dateTime(item.createdAt), item.userName, item.moduleKey, item.action, item.recordId || '—', item.workstationName || '—'] }));
   const downtime = overview.downtime.map((item) => ({ id: item.id, cells: [dateTime(item.startTime), item.workCenterCode, item.companyId, item.durationMinutes ?? 'Ongoing', item.isVerified ? 'Yes' : 'No', item.notes || '—'] }));
   return <>
-    <SystemDataTable title="System activity and sessions" description="Signed-in users, session dates, and workstation information." columns={['User', 'Started', 'Last updated', 'Expires', 'Client', 'Action']} rows={sessions} emptyLabel="No active sessions." action={<button className="border-0 bg-transparent text-[#557d55] text-[9px] font-bold cursor-pointer whitespace-nowrap [&:hover]:text-[#234f34] [&:hover]:underline" onClick={onRefresh} disabled={loading}>Refresh ↻</button>} />
+    <SystemDataTable title="System activity and sessions" description="Signed-in users, session dates, and workstation information." columns={['User', 'Started', 'Last updated', 'Expires', 'Client', 'Action']} rows={sessions} emptyLabel="No active sessions." action={<button className="font-medium text-[#52525b] underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#a1a1aa] disabled:opacity-50 dark:text-[#d4d4d8]" onClick={onRefresh} disabled={loading}>Refresh ↻</button>} />
     <SystemDataTable title="System failures and errors" description="Recent server-side failures and health events, grouped by endpoint." columns={['Time', 'Level', 'Area', 'Message', 'HTTP', 'Path']} rows={errors} emptyLabel="No system errors have been recorded." />
     <SystemDataTable title="ERP activity log" description="Recent user actions recorded across production modules." columns={['Time', 'User', 'Module', 'Action', 'Record', 'Workstation']} rows={activity} emptyLabel="No activity recorded yet." />
     <SystemDataTable title="Machine downtime" description="Recent operational stoppages, grouped separately from system errors." columns={['Start', 'Machine', 'Company', 'Duration (min)', 'Verified', 'Notes']} rows={downtime} emptyLabel="No downtime records found." />

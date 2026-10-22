@@ -3,15 +3,14 @@ import { Link } from 'react-router-dom';
 import Brand, { BrandIcon } from './components/brand.js';
 
 const modules = [
-  ['Operations', 'Production, planning, and manufacturing orders', '◫'],
-  ['Inventory', 'Stock, warehouse, and material traceability', '▤'],
-  ['Procurement', 'Purchasing, suppliers, and incoming goods', '↗'],
-  ['Sales', 'Customer orders, delivery, and fulfillment', '⌑'],
-  ['Finance', 'Accounting, costs, and financial reporting', '◷'],
-  ['People', 'Employees, access, and workforce operations', '♧'],
-  ['Quality', 'Inspections, standards, and corrective actions', '◉'],
-  ['Maintenance', 'Assets, preventive care, and downtime', '⚙'],
-  ['Business intelligence', 'Connected reports and company-wide insight', '▥'],
+  ['Production overview', 'Live output, work orders, and production activity', '◫'],
+  ['Production entry', 'Record shift output and shop-floor reports', '＋'],
+  ['Machine downtime', 'Track and review operational stoppages', '◷'],
+  ['Products & BOMs', 'Manage production products and bills of materials', '◇'],
+  ['Work orders', 'Plan and track manufacturing orders', '▤'],
+  ['Machines & tools', 'Manage production work centers and equipment', '⚙'],
+  ['Quality & traceability', 'Review quality checks and production traceability', '◉'],
+  ['Production reports', 'Summarize output, scrap, and downtime', '▥'],
 ];
 function licenseMessage(license) {
   if (!license) return null;
@@ -38,19 +37,19 @@ export default function HomePage() {
   const companyName = system?.company?.companyName || 'Lyu ERP';
   return (
     <div className="overflow-hidden group/lyu-erp-home [&_h2_em]:text-[#779268] [&_h2_em]:font-['Georgia',_serif] [&_h2_em]:font-normal">
-      <section className="group/lyu-home-hero grid grid-cols-[minmax(0,_1.05fr)_minmax(300px,_.75fr)] items-center gap-[7%] pt-[78px] px-[9%] pb-[68px] bg-[#f7f8f3] [&_h1]:mt-5 mx-0 mb-[15px] [&_h1]:text-[#1d3d2b] [&_h1]:font-bold [&_h1]:text-[clamp(44px,_6vw,_72px)] [&_h1]:leading-[1.03] [&_h1]:font-['Manrope',_sans-serif] [&_h1]:tracking-[-3.5px] [&_h1_em]:text-[#779268] [&_h1_em]:font-['Georgia',_serif] [&_h1_em]:font-normal dark:bg-[#111a16] dark:[&_h1]:text-[#dce9dd] max-[760px]:grid-cols-[1fr] max-[760px]:py-[50px] px-[7%]">
+      <section className="group/lyu-home-hero grid grid-cols-[minmax(0,_1.05fr)_minmax(300px,_.75fr)] items-center gap-[7%] px-[9%] py-16 [&_h1]:mt-5 mx-0 mb-[15px] [&_h1]:text-[#1d3d2b] [&_h1]:font-bold [&_h1]:text-[clamp(44px,_6vw,_72px)] [&_h1]:leading-[1.03] [&_h1]:font-['Manrope',_sans-serif] [&_h1]:tracking-[-3.5px] [&_h1_em]:text-[#779268] [&_h1_em]:font-['Georgia',_serif] [&_h1_em]:font-normal max-[760px]:grid-cols-[1fr] max-[760px]:py-[50px] px-[7%]">
         <div>
           <Brand className="mb-[24px]" />
           <p className="text-[#76877d] font-medium text-[10px] font-['DM_Mono',_monospace] tracking-[1.45px] flex items-center gap-[9px]    [.group\/lyu-cta_&]:text-[#aec0ad]"><span className="w-[19px] h-px bg-[#91aa55]" /> ONE CONNECTED BUSINESS SYSTEM</p>
           <h1>Run your whole<br />business with <em>clarity.</em></h1>
           <p className="max-w-[440px] text-[#78877c] text-sm leading-[1.8] dark:text-[#b1beb4] [.group\/lyu-home-hero_&]:max-w-[570px] [.group\/lyu-home-hero_&]:text-[#78867b] [.group\/lyu-home-hero_&]:text-sm [.group\/lyu-home-hero_&]:leading-[1.8] dark:[.group\/lyu-home-hero_&]:text-[#a8b6aa]">Lyu ERP connects the people, processes, and information behind your business—from finance and people operations to inventory, customer orders, and manufacturing.</p>
           <div className="flex items-center flex-wrap gap-[19px] mt-[28px]">
-            <Link to="/go" className="group/button inline-flex items-center justify-center gap-[18px] rounded-full py-[15px] px-[22px] text-[13px] font-bold transition-[transform,background,box-shadow] duration-200 [&:hover]:translate-y-[-2px]   [.group\/lyu-cta_&]:z-[1] text-[#f7f8f4] bg-[#153f33] shadow-[0_9px_22px_#153f3321] [&:hover]:bg-[#205342] [&:hover]:shadow-[0_12px_28px_#153f3333]">Sign in to Lyu ERP <span aria-hidden="true">↗</span></Link>
-            <a href="#modules" className="text-[#537357] text-[11px] font-bold [&_span]:ml-[5px]">Explore ERP modules <span aria-hidden="true">↓</span></a>
+            <Link to="/go" className="inline-flex h-10 items-center justify-center gap-2 rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90">Sign in to Lyu ERP <span aria-hidden="true">↗</span></Link>
+            <a href="#modules" className="text-sm font-medium text-foreground underline-offset-4 hover:underline">Explore production features <span aria-hidden="true">↓</span></a>
           </div>
           <div className="flex items-center gap-2.5 mt-[25px] text-[#617267] text-[11px] font-bold dark:text-[#b5c5b7]"><span className="w-2 h-2 flex-[0_0_auto] rounded-full bg-[#81aa69] shadow-[0_0_0_5px_#81aa6920] w-1.5 h-1.5" /> {companyName}</div>
         </div>
-        <div className="group/lyu-erp-home-panel relative overflow-hidden min-h-80 flex flex-col justify-center p-[34px] border border-[#e2e9df] rounded-2xl bg-[linear-gradient(145deg,_#edf3e8,_#e5ede2)] [&_>_p]:text-[#71816f] [&_>_p]:font-bold [&_>_p]:text-[10px] [&_>_p]:font-['DM_Mono',_monospace] [&_>_p]:tracking-[1.2px] [&_h2]:mt-2 mx-0 mb-[26px] [&_h2]:text-[#254430] [&_h2]:font-semibold [&_h2]:text-[clamp(25px,_3vw,_34px)] [&_h2]:leading-[1.2] [&_h2]:font-['Manrope',_sans-serif] [&_h2]:tracking-[-1px] [&_>_small]:mt-[24px] [&_>_small]:text-[#647967] [&_>_small]:text-[11px] dark:border-[#344439] dark:bg-[linear-gradient(145deg,_#1b2b20,_#18241c)] dark:[&_>_p]:text-[#a9b9a7] dark:[&_>_small]:text-[#a9b9a7] dark:[&_h2]:text-[#d9e8d9] max-[760px]:min-h-[260px]">
+        <div className="group/lyu-erp-home-panel relative min-h-80 flex flex-col justify-center rounded-xl border border-border bg-card p-8 text-card-foreground shadow-sm [&_>_p]:text-muted-foreground [&_>_p]:font-medium [&_>_p]:text-xs [&_h2]:mt-2 mx-0 mb-[26px] [&_h2]:font-semibold [&_h2]:text-[clamp(25px,_3vw,_34px)] [&_h2]:leading-[1.2] [&_h2]:font-['Manrope',_sans-serif] [&_h2]:tracking-[-1px] [&_>_small]:mt-[24px] [&_>_small]:text-muted-foreground [&_>_small]:text-sm max-[760px]:min-h-[260px]">
           <BrandIcon className="group/lyu-preview-mark dark:text-[#dce9dc] [.group\/lyu-erp-home-panel_>_&]:absolute [.group\/lyu-erp-home-panel_>_&]:top-[25px] [.group\/lyu-erp-home-panel_>_&]:right-[26px]" />
           <p>LYU ERP WORKSPACE</p>
           <h2>One source of truth.<br /><em>Every team in sync.</em></h2>
@@ -62,7 +61,7 @@ export default function HomePage() {
         <span>{system.license.isActive ? '✓' : '!'}</span><p>{licenseMessage(system.license)}</p>
       </div>}
 
-      <section className="pt-[91px] px-[8%] pb-24 group/lyu-erp-modules" id="modules">
+      <section className="px-[8%] py-16 group/lyu-erp-modules" id="modules">
         <div className="[&_h2_em]:text-[#72915a] [&_h2_em]:italic [&_h2_em]:font-normal [&_h2_em]:text-[1em] [&_h2_em]:font-['Georgia',_serif] [&_h2_em]:tracking-[-4px] max-w-[560px] [&_h2]:mt-[17px] mx-0 mb-3 [&_h2]:text-[#1d3e2a] [&_h2]:font-bold [&_h2]:text-[clamp(38px,_5vw,_55px)] [&_h2]:leading-[1.08] [&_h2]:font-['Manrope',_sans-serif] [&_h2]:tracking-[-2.4px] [&_>_p:last-child]:max-w-[465px] [&_>_p:last-child]:text-[#819086] [&_>_p:last-child]:text-xs [&_>_p:last-child]:leading-[1.8] dark:[&_h2]:text-[#e4ede5] dark:[&_>_p:last-child]:text-[#b1beb4]">
           <p className="text-[#76877d] font-medium text-[10px] font-['DM_Mono',_monospace] tracking-[1.45px] flex items-center gap-[9px]    [.group\/lyu-cta_&]:text-[#aec0ad]"><span className="w-[19px] h-px bg-[#91aa55]" /> THE LYU ERP PLATFORM</p>
           <h2>Every function.<br /><em>Working together.</em></h2>
@@ -89,9 +88,9 @@ export default function HomePage() {
         </address>}
       </section>
 
-      <section className="group/lyu-cta [&_h2_em]:text-[#72915a] [&_h2_em]:italic [&_h2_em]:font-normal [&_h2_em]:text-[1em] [&_h2_em]:font-['Georgia',_serif] [&_h2_em]:tracking-[-4px] [&_h2]:mt-[17px] mx-0 mb-3 [&_h2]:text-[#1d3e2a] [&_h2]:font-bold [&_h2]:text-[clamp(38px,_5vw,_55px)] [&_h2]:leading-[1.08] [&_h2]:font-['Manrope',_sans-serif] [&_h2]:tracking-[-2.4px] relative overflow-hidden min-h-[260px] flex items-center justify-between gap-[25px] py-[55px] px-[10%] bg-[#173d2b] text-white [&_h2]:mb-[0] [&_h2]:text-white [&_h2_em]:text-[#c8e2ac] dark:bg-[#142d20] mt-[0]">
-        <div><p className="text-[#76877d] font-medium text-[10px] font-['DM_Mono',_monospace] tracking-[1.45px] flex items-center gap-[9px]    [.group\/lyu-cta_&]:text-[#aec0ad]"><span className="w-[19px] h-px bg-[#91aa55]" /> LYU ERP · BUSINESS OPERATIONS</p><h2>Bring your teams<br /><em>together.</em></h2></div>
-        <Link to="/go" className="group/button inline-flex items-center justify-center gap-[18px] rounded-full py-[15px] px-[22px] text-[13px] font-bold transition-[transform,background,box-shadow] duration-200 [&:hover]:translate-y-[-2px]   [.group\/lyu-cta_&]:z-[1] bg-[#d6edba] text-[#183b30] [&:hover]:bg-[#e4f5d1]">Sign in to your workspace <span aria-hidden="true">↗</span></Link>
+      <section className="group/lyu-cta relative mt-0 flex min-h-[220px] items-center justify-between gap-6 rounded-xl bg-primary px-[10%] py-12 text-primary-foreground max-[760px]:flex-col max-[760px]:items-start">
+        <div><p className="text-sm font-medium text-primary-foreground/70">LYU ERP · BUSINESS OPERATIONS</p><h2 className="mt-4 text-3xl font-semibold tracking-tight">Bring your teams together.</h2></div>
+        <Link to="/go" className="inline-flex h-10 items-center justify-center gap-2 rounded-md bg-primary-foreground px-4 text-sm font-medium text-primary transition-colors hover:bg-primary-foreground/90">Sign in to your workspace <span aria-hidden="true">↗</span></Link>
         <BrandIcon className="group/lyu-cta-mark group/lyu-logo-contrast" />
       </section>
     </div>
